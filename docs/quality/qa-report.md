@@ -44,13 +44,27 @@ O primeiro viewport funciona como uma composição única: marca, serviço, cont
 
 Nenhum critério de rejeição foi encontrado. A página não usa carrossel, menu móvel, hero em card, gradiente roxo, ícones em círculos ou grade de três recursos como primeira impressão.
 
-## Quick wins
+## Produção
 
-Nenhuma correção visual é necessária antes da publicação. Depois do deploy:
+A publicação Git-integrada foi validada em `https://limpezadefachadas-verticalchao.pages.dev/`. A URL, o logo, `robots.txt` e `sitemap.xml` responderam corretamente. A página publicada manteve os telefones aprovados, três figuras, ausência de menu sanduíche, Consent Mode revisável e eventos próprios sem dados pessoais.
 
-1. Rodar Lighthouse Mobile na URL de produção.
-2. Confirmar o disparo das tags configuradas dentro do container `GTM-M7GS29F`.
-3. Trocar canonical, Open Graph, robots e sitemap quando o domínio personalizado entrar.
+No navegador mobile em 390 × 844, não houve overflow, erro de console ou falha de recurso local. A galeria mediu 273 px nas três imagens, e o CTA principal ficou entre 484 e 532 px.
+
+O Lighthouse foi executado com perfil mobile na URL de produção:
+
+- Performance: 100
+- Acessibilidade: 100
+- Boas práticas: 100
+- SEO: 100
+- LCP: 1.773 ms
+- CLS: 0,000108
+- TBT: 38,5 ms
+
+O container `GTM-M7GS29F` carregou em produção. A conta de Google Ads configurada dentro do próprio container também foi observada no DOM renderizado, sem inclusão de um ID direto no código-fonte.
+
+## Próximo ajuste operacional
+
+Quando o domínio personalizado entrar, trocar canonical, Open Graph, `robots.txt` e `sitemap.xml` para a URL definitiva.
 
 ## Evidências
 

@@ -88,7 +88,17 @@
     "failed_local_requests": 0,
     "tracking_pii_keys": 0,
     "tracking_forbidden_custom_metadata": 0,
-    "lighthouse_mobile": "pending_task_9"
+    "lighthouse_mobile": {
+      "form_factor": "mobile",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "lcp_ms": 1773.452,
+      "cls": 0.0001081382,
+      "tbt_ms": 38.5,
+      "url": "https://limpezadefachadas-verticalchao.pages.dev/"
+    }
   },
   "deployment_package": {
     "type": "github-cloudflare-pages",
@@ -98,11 +108,14 @@
     "build_command": "npm run build",
     "public_dir": "public",
     "ready_for_github": true,
-    "deployed": false
+    "github_url": "https://github.com/trafegocomprado/limpezadefachadas-verticalchao",
+    "production_url": "https://limpezadefachadas-verticalchao.pages.dev/",
+    "git_integration": true,
+    "source_type": "github",
+    "deployed": true
   },
   "warnings": [
-    "Atualize canonical, og:url, robots.txt e sitemap.xml quando o domínio personalizado for definido.",
-    "Execute Lighthouse Mobile na URL de produção após o deploy."
+    "Atualize canonical, og:url, robots.txt e sitemap.xml quando o domínio personalizado for definido."
   ],
   "generated_at": "2026-07-23"
 }
