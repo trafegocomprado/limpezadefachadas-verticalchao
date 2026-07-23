@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -114,6 +115,252 @@ function extractFunctionBody(source, functionName) {
     }
   }
   return source.slice(declaration.lastIndex, index - 1);
+}
+
+class FakeClassList {
+  constructor() {
+    this.values = new Set();
+  }
+
+  add(...tokens) {
+    for (const token of tokens) this.values.add(token);
+  }
+
+  remove(...tokens) {
+    for (const token of tokens) this.values.delete(token);
+  }
+
+  toggle(token, force) {
+    const shouldAdd = force === undefined ? !this.values.has(token) : Boolean(force);
+    if (shouldAdd) this.values.add(token);
+    else this.values.delete(token);
+    return shouldAdd;
+  }
+
+  contains(token) {
+    return this.values.has(token);
+  }
+}
+
+class FakeElement {
+  constructor(tagName = 'div', ownerDocument = null) {
+    this.tagName = tagName.toUpperCase();
+    this.ownerDocument = ownerDocument;
+    this.listeners = new Map();
+    this.attributes = new Map();
+    this.classList = new FakeClassList();
+    this.children = [];
+    this.dataset = {};
+    this.hidden = false;
+    this.href = '';
+    this.name = '';
+    this.required = false;
+    this.textContent = '';
+    this.type = '';
+    this.value = '';
+  }
+
+  addEventListener(type, listener) {
+    const listeners = this.listeners.get(type) ?? [];
+    listeners.push(listener);
+    this.listeners.set(type, listeners);
+  }
+
+  dispatch(type, properties = {}) {
+    const event = {
+      currentTarget: this,
+      defaultPrevented: false,
+      preventDefault() {
+        this.defaultPrevented = true;
+      },
+      target: this,
+      type,
+      ...properties,
+    };
+    for (const listener of this.listeners.get(type) ?? []) listener.call(this, event);
+    return event;
+  }
+
+  focus() {
+    if (this.ownerDocument) this.ownerDocument.activeElement = this;
+  }
+
+  getAttribute(name) {
+    if (name === 'href') return this.href || null;
+    return this.attributes.get(name) ?? null;
+  }
+
+  hasAttribute(name) {
+    return this.attributes.has(name);
+  }
+
+  setAttribute(name, value) {
+    const normalized = String(value);
+    this.attributes.set(name, normalized);
+    if (name === 'href') this.href = normalized;
+  }
+
+  removeAttribute(name) {
+    this.attributes.delete(name);
+  }
+
+  append(...children) {
+    this.children.push(...children);
+  }
+
+  appendChild(child) {
+    this.children.push(child);
+    return child;
+  }
+
+  replaceChildren(...children) {
+    this.children = [...children];
+    this.textContent = '';
+  }
+
+  querySelector(selector) {
+    const name = selector.match(/^\[name=["']([^"']+)["']\]$/)?.[1];
+    if (name && this.fields) return this.fields[name] ?? null;
+    if (selector === 'a') return this.children.find((child) => child.tagName === 'A') ?? null;
+    return null;
+  }
+}
+
+function makeRuntimeHarness({ storedConsent = null, popupAllowed = true, storageThrows = false } = {}) {
+  const document = {
+    activeElement: null,
+    createElement(tagName) {
+      return new FakeElement(tagName, document);
+    },
+  };
+  const makeElement = (tagName = 'div') => new FakeElement(tagName, document);
+  const sentinel = makeElement('button');
+  document.activeElement = sentinel;
+
+  const header = makeElement('header');
+  const hero = makeElement('section');
+  const form = makeElement('form');
+  const status = makeElement('p');
+  const banner = makeElement('aside');
+  const accept = makeElement('button');
+  const deny = makeElement('button');
+  const manage = makeElement('button');
+  const cta = makeElement('a');
+  banner.hidden = true;
+  cta.dataset.ctaLocation = 'hero';
+  cta.dataset.contactMethod = 'whatsapp';
+  cta.textContent = 'Pedir avaliação pelo WhatsApp';
+
+  const fieldDefinitions = {
+    nome: { required: true, type: 'text' },
+    telefone: { required: true, type: 'tel' },
+    email: { required: false, type: 'email' },
+    assunto: { required: true, type: 'text' },
+    mensagem: { required: true, type: 'textarea' },
+  };
+  const fields = {};
+  const errors = {};
+  for (const [name, definition] of Object.entries(fieldDefinitions)) {
+    const field = makeElement(definition.type === 'textarea' ? 'textarea' : 'input');
+    field.name = name;
+    field.required = definition.required;
+    field.type = definition.type;
+    fields[name] = field;
+    const error = makeElement('span');
+    error.dataset.errorFor = name;
+    errors[name] = error;
+  }
+  form.fields = fields;
+  form.elements = fields;
+
+  const selectors = new Map([
+    ['[data-site-header]', header],
+    ['#inicio', hero],
+    ['[data-whatsapp-form]', form],
+    ['[data-form-status]', status],
+    ['[data-consent-banner]', banner],
+    ['[data-consent-accept]', accept],
+    ['[data-consent-deny]', deny],
+    ['[data-consent-manage]', manage],
+  ]);
+  document.querySelector = (selector) => selectors.get(selector) ?? null;
+  document.querySelectorAll = (selector) => {
+    if (selector === '[data-track-cta]') return [cta];
+    if (selector === '[data-error-for]') return Object.values(errors);
+    return [];
+  };
+
+  const storage = new Map();
+  if (storedConsent !== null) storage.set('verticalchao_consent', storedConsent);
+  const localStorage = {
+    getItem(key) {
+      if (storageThrows) throw new Error('storage unavailable');
+      return storage.get(key) ?? null;
+    },
+    setItem(key, value) {
+      if (storageThrows) throw new Error('storage unavailable');
+      storage.set(key, String(value));
+    },
+  };
+
+  const popup = popupAllowed ? { location: { href: '' }, opener: 'unsafe' } : null;
+  const openCalls = [];
+  const gtagCalls = [];
+  const observers = [];
+  class FakeIntersectionObserver {
+    constructor(callback) {
+      this.callback = callback;
+      observers.push(this);
+    }
+
+    observe(target) {
+      this.target = target;
+    }
+  }
+
+  const window = {
+    dataLayer: [],
+    document,
+    localStorage,
+    open(...args) {
+      openCalls.push(args);
+      return popup;
+    },
+  };
+  const gtag = (...args) => gtagCalls.push(args);
+  window.gtag = gtag;
+
+  return {
+    context: {
+      URL,
+      clearTimeout,
+      console,
+      document,
+      encodeURIComponent,
+      gtag,
+      IntersectionObserver: FakeIntersectionObserver,
+      localStorage,
+      setTimeout,
+      window,
+    },
+    elements: { accept, banner, cta, deny, errors, fields, form, header, hero, manage, sentinel, status },
+    gtagCalls,
+    observers,
+    openCalls,
+    popup,
+    storage,
+    window,
+  };
+}
+
+async function runSiteScript(harness) {
+  const source = await readRequired('script.js');
+  vm.runInNewContext(source, harness.context, { filename: 'script.js' });
+  return harness;
+}
+
+function plain(value) {
+  return JSON.parse(JSON.stringify(value));
 }
 
 test('keeps committed outputs when post-commit backup cleanup partially fails', async () => {
@@ -379,4 +626,243 @@ test('declares exact build metadata for contacts and tracking', async () => {
   assert.equal(metadata.mobile_menu, false);
   assert.equal(metadata.contacts.commercial, '+5531996848477');
   assert.equal(metadata.contacts.footer_secondary, '+5531987122106');
+});
+
+test('shows consent on first load without stealing focus', async () => {
+  const harness = makeRuntimeHarness();
+  await runSiteScript(harness);
+
+  assert.equal(harness.elements.banner.hidden, false);
+  assert.equal(harness.elements.sentinel, harness.context.document.activeElement);
+  assert.equal(harness.gtagCalls.length, 0, 'No consent update is needed before a visitor chooses');
+});
+
+test('persists accepted consent and sends the exact four granted signals', async () => {
+  const harness = makeRuntimeHarness();
+  await runSiteScript(harness);
+  harness.elements.accept.dispatch('click');
+
+  assert.equal(harness.storage.get('verticalchao_consent'), 'granted');
+  assert.equal(harness.elements.banner.hidden, true);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(harness.gtagCalls.at(-1))),
+    [
+      'consent',
+      'update',
+      {
+        analytics_storage: 'granted',
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+      },
+    ],
+  );
+  assert.deepEqual(plain(harness.window.dataLayer.at(-1)), {
+    event: 'consent_updated',
+    consent_choice: 'granted',
+  });
+});
+
+test('manage consent focuses the dialog and denying restores focus to the manager', async () => {
+  const harness = makeRuntimeHarness({ storedConsent: 'granted' });
+  await runSiteScript(harness);
+  harness.gtagCalls.length = 0;
+  harness.window.dataLayer.length = 0;
+
+  harness.elements.manage.focus();
+  harness.elements.manage.dispatch('click');
+  assert.equal(harness.elements.banner.hidden, false);
+  assert.equal(harness.context.document.activeElement, harness.elements.accept);
+
+  harness.elements.deny.dispatch('click');
+  assert.equal(harness.storage.get('verticalchao_consent'), 'denied');
+  assert.equal(harness.elements.banner.hidden, true);
+  assert.equal(harness.context.document.activeElement, harness.elements.manage);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(harness.gtagCalls.at(-1))),
+    [
+      'consent',
+      'update',
+      {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+      },
+    ],
+  );
+  assert.deepEqual(plain(harness.window.dataLayer.at(-1)), {
+    event: 'consent_updated',
+    consent_choice: 'denied',
+  });
+});
+
+test('restores stored consent on reload without showing the banner or stealing focus', async () => {
+  for (const choice of ['granted', 'denied']) {
+    const harness = makeRuntimeHarness({ storedConsent: choice });
+    await runSiteScript(harness);
+
+    assert.equal(harness.elements.banner.hidden, true);
+    assert.equal(harness.context.document.activeElement, harness.elements.sentinel);
+    assert.deepEqual(plain(harness.gtagCalls), [
+      [
+        'consent',
+        'update',
+        {
+          analytics_storage: choice,
+          ad_storage: choice,
+          ad_user_data: choice,
+          ad_personalization: choice,
+        },
+      ],
+    ]);
+  }
+});
+
+test('keeps consent controls usable when browser storage is unavailable', async () => {
+  const harness = makeRuntimeHarness({ storageThrows: true });
+  await runSiteScript(harness);
+  assert.equal(harness.elements.banner.hidden, false);
+  assert.doesNotThrow(() => harness.elements.deny.dispatch('click'));
+  assert.equal(harness.elements.banner.hidden, true);
+});
+
+test('marks form errors and focuses the first invalid field', async () => {
+  const harness = makeRuntimeHarness();
+  await runSiteScript(harness);
+
+  const emptySubmit = harness.elements.form.dispatch('submit');
+  assert.equal(emptySubmit.defaultPrevented, true);
+  assert.equal(harness.context.document.activeElement, harness.elements.fields.nome);
+  for (const name of ['nome', 'telefone', 'assunto', 'mensagem']) {
+    assert.equal(harness.elements.fields[name].getAttribute('aria-invalid'), 'true');
+    assert.ok(harness.elements.errors[name].textContent.trim(), `${name} must have an accessible error`);
+  }
+
+  Object.assign(harness.elements.fields.nome, { value: 'Ana' });
+  Object.assign(harness.elements.fields.telefone, { value: '31 9999-999' });
+  Object.assign(harness.elements.fields.email, { value: 'email-inválido' });
+  Object.assign(harness.elements.fields.assunto, { value: 'Limpeza de fachada' });
+  Object.assign(harness.elements.fields.mensagem, { value: 'Quero agendar uma vistoria.' });
+  harness.elements.form.dispatch('submit');
+
+  assert.equal(harness.context.document.activeElement, harness.elements.fields.telefone);
+  assert.equal(harness.elements.fields.telefone.getAttribute('aria-invalid'), 'true');
+  assert.equal(harness.elements.fields.email.getAttribute('aria-invalid'), 'true');
+  assert.match(harness.elements.errors.telefone.textContent, /10/);
+});
+
+function fillValidForm(fields) {
+  fields.nome.value = 'Ana Souza';
+  fields.telefone.value = '(31) 99999-0000';
+  fields.email.value = 'ana@example.com';
+  fields.assunto.value = 'Limpeza de fachada';
+  fields.mensagem.value = 'Quero agendar uma vistoria.';
+}
+
+test('opens a valid WhatsApp form safely and tracks only non-PII metadata', async () => {
+  const harness = makeRuntimeHarness();
+  fillValidForm(harness.elements.fields);
+  await runSiteScript(harness);
+  harness.window.dataLayer.length = 0;
+
+  harness.elements.form.dispatch('submit');
+
+  assert.deepEqual(harness.openCalls, [['', '_blank']]);
+  assert.equal(harness.popup.opener, null);
+  const destination = new URL(harness.popup.location.href);
+  assert.equal(destination.origin + destination.pathname, 'https://api.whatsapp.com/send');
+  assert.equal(destination.searchParams.get('phone'), '5531996848477');
+  const message = destination.searchParams.get('text');
+  for (const value of ['Ana Souza', '(31) 99999-0000', 'ana@example.com', 'Limpeza de fachada', 'Quero agendar uma vistoria.']) {
+    assert.match(message, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.equal(harness.window.dataLayer.length, 1);
+  assert.deepEqual(plain(harness.window.dataLayer[0]), {
+    event: 'form_submitted',
+    contact_method: 'whatsapp',
+    form_name: 'limpeza_orcamento',
+  });
+  assert.doesNotMatch(JSON.stringify(harness.window.dataLayer), /Ana|99999|example\.com|vistoria/i);
+});
+
+test('accepts a blank optional email and still opens the approved WhatsApp destination', async () => {
+  const harness = makeRuntimeHarness();
+  fillValidForm(harness.elements.fields);
+  harness.elements.fields.email.value = '';
+  await runSiteScript(harness);
+
+  harness.elements.form.dispatch('submit');
+
+  assert.deepEqual(harness.openCalls, [['', '_blank']]);
+  assert.equal(harness.popup.opener, null);
+  const destination = new URL(harness.popup.location.href);
+  assert.equal(destination.searchParams.get('phone'), '5531996848477');
+  assert.match(destination.searchParams.get('text'), /E-mail: Não informado/);
+  assert.equal(harness.elements.fields.email.getAttribute('aria-invalid'), null);
+});
+
+test('provides an accessible recovery link and event when the popup is blocked', async () => {
+  const harness = makeRuntimeHarness({ popupAllowed: false });
+  fillValidForm(harness.elements.fields);
+  await runSiteScript(harness);
+  harness.window.dataLayer.length = 0;
+
+  harness.elements.form.dispatch('submit');
+
+  const recoveryLink = harness.elements.status.querySelector('a');
+  assert.ok(recoveryLink, 'Blocked popups must expose a real recovery link');
+  assert.equal(recoveryLink.getAttribute('data-form-recovery'), '');
+  assert.match(recoveryLink.href, /^https:\/\/api\.whatsapp\.com\/send\?phone=5531996848477&text=/);
+  assert.match(harness.elements.status.textContent, /n[aã]o abriu|bloquead/i);
+  assert.deepEqual(plain(harness.window.dataLayer), [
+    {
+      event: 'form_submitted',
+      contact_method: 'whatsapp',
+      form_name: 'limpeza_orcamento',
+    },
+    {
+      event: 'popup_blocked',
+      block_reason: 'browser',
+      contact_method: 'whatsapp',
+      form_name: 'limpeza_orcamento',
+    },
+  ]);
+});
+
+test('tracks CTA context and toggles the compact header through an observer', async () => {
+  const harness = makeRuntimeHarness();
+  await runSiteScript(harness);
+  harness.window.dataLayer.length = 0;
+
+  harness.elements.cta.dispatch('click');
+  assert.deepEqual(plain(harness.window.dataLayer), [
+    {
+      event: 'cta_clicked',
+      contact_method: 'whatsapp',
+      cta_location: 'hero',
+      cta_text: 'Pedir avaliação pelo WhatsApp',
+    },
+  ]);
+
+  assert.equal(harness.observers.length, 1);
+  harness.observers[0].callback([{ isIntersecting: false }]);
+  assert.equal(harness.elements.header.classList.contains('is-scrolled'), true);
+  harness.observers[0].callback([{ isIntersecting: true }]);
+  assert.equal(harness.elements.header.classList.contains('is-scrolled'), false);
+});
+
+test('declares exactly one literal tracking call for each approved custom event', async () => {
+  const script = await readRequired('script.js');
+  const literalEventNames = extractCalls(script, 'trackEvent')
+    .map((call) => call.match(/^\s*["']([a-z_]+)["']/)?.[1])
+    .filter(Boolean)
+    .sort();
+
+  assert.deepEqual(literalEventNames, [
+    'consent_updated',
+    'cta_clicked',
+    'form_submitted',
+    'popup_blocked',
+  ]);
 });
