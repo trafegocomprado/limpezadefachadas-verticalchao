@@ -1,0 +1,8 @@
+.worktrees/
+node_modules/
+dist/
+.tmp/
+.wrangler/
+.gstack/
+assets/img/source/
+assets/favicon-source.png
