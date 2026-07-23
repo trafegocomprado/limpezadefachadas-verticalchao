@@ -15,6 +15,12 @@ const deployFiles = [
   '_headers',
   '_redirects',
 ];
+const deployAssets = [
+  'assets/apple-touch-icon.png',
+  'assets/favicon-32.png',
+  'assets/fonts',
+  'assets/img/webp',
+];
 
 async function requireSource(relativePath, expectedType = 'file') {
   const absolutePath = path.join(root, relativePath);
@@ -34,7 +40,10 @@ async function populateOutput(outputPath, includeBuildMetadata) {
   for (const relativePath of deployFiles) {
     await cp(path.join(root, relativePath), path.join(outputPath, relativePath));
   }
-  await cp(path.join(root, 'assets'), path.join(outputPath, 'assets'), { recursive: true });
+  for (const relativePath of deployAssets) {
+    await mkdir(path.dirname(path.join(outputPath, relativePath)), { recursive: true });
+    await cp(path.join(root, relativePath), path.join(outputPath, relativePath), { recursive: true });
+  }
   if (includeBuildMetadata) {
     await cp(path.join(root, 'build.json'), path.join(outputPath, 'build.json'));
   }

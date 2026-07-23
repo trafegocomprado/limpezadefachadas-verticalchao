@@ -24,6 +24,7 @@ export function collectReferences(html, styles) {
 
 export function localTarget(root, reference) {
   if (!reference || reference.startsWith('#')) return null;
+  if (/^%23/i.test(reference)) return null;
   if (reference.startsWith('//')) throw new Error(`Protocol-relative URL is forbidden: ${reference}`);
   if (/^[a-z][a-z\d+.-]*:/i.test(reference)) {
     if (/^(?:https?|tel|mailto):/i.test(reference) || reference.startsWith('data:')) return null;

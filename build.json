@@ -43,9 +43,66 @@
     }
   ],
   "reports": {
-    "anti_ai_writing": "analysis/anti-ai-report.md",
-    "text_editor": "analysis/text-editor-report.html",
-    "text_editor_final_check": "analysis/text-editor-final-check.json"
+    "anti_ai_writing": "docs/quality/anti-ai-report.md",
+    "text_editor_analysis": "docs/quality/text-editor-analysis.json",
+    "text_editor": "docs/quality/text-editor-report.html",
+    "qa_report": "docs/quality/qa-report.md",
+    "qa_summary": "docs/quality/qa-summary.json"
   },
-  "generated_at": "2026-07-22"
+  "copy_gates": {
+    "anti_ai_writing": "passed",
+    "text_editor_score": 98,
+    "text_editor_grade": "A",
+    "flesch_pt_br": 46.1,
+    "findings": 5,
+    "ai_patterns": 0,
+    "passive_voice": 0,
+    "vicios_pt_br": 0
+  },
+  "quality_scores": {
+    "qa_health": 100,
+    "design_review": "A",
+    "ai_slop": "A",
+    "accessibility": 100,
+    "error_states": "A"
+  },
+  "verification": {
+    "contract_tests": 26,
+    "contract_failures": 0,
+    "local_links_checked": 11,
+    "viewports": [
+      "390x844",
+      "375x667",
+      "768x900",
+      "1280x900"
+    ],
+    "mobile_gallery_heights_px": [
+      273,
+      273,
+      273
+    ],
+    "mobile_cta_above_fold": true,
+    "mobile_menu_present": false,
+    "broken_local_assets": 0,
+    "console_errors": 0,
+    "failed_local_requests": 0,
+    "tracking_pii_keys": 0,
+    "tracking_forbidden_custom_metadata": 0,
+    "lighthouse_mobile": "pending_task_9"
+  },
+  "deployment_package": {
+    "type": "github-cloudflare-pages",
+    "repository": "trafegocomprado/limpezadefachadas-verticalchao",
+    "project": "limpezadefachadas-verticalchao",
+    "production_branch": "main",
+    "build_command": "npm run build",
+    "public_dir": "public",
+    "ready_for_github": true,
+    "deployed": false
+  },
+  "warnings": [
+    "Atualize canonical, og:url, robots.txt e sitemap.xml quando o domínio personalizado for definido.",
+    "Execute Lighthouse Mobile na URL de produção após o deploy."
+  ],
+  "generated_at": "2026-07-23"
 }

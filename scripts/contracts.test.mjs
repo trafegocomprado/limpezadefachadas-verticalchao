@@ -425,6 +425,33 @@ test('link checker parses srcset and rejects decoded Windows separators', async 
   assert.throws(() => localTarget(root, 'assets%5Cprivate.webp'), /Windows path is forbidden/);
 });
 
+test('link checker ignores encoded SVG fragment references nested in data URLs', async () => {
+  const { collectReferences, localTarget } = await import('./check-links.mjs');
+  const styles = `.texture {
+    background-image: url("data:image/svg+xml,%3Csvg%3E%3Cfilter id='n'%3E%3C/filter%3E%3Crect filter='url(%23n)'/%3E%3C/svg%3E");
+  }`;
+  const references = collectReferences('', styles);
+  assert.ok(references.includes('%23n'), 'Fixture must exercise the nested encoded fragment');
+  assert.equal(localTarget(root, '%23n'), null, 'An encoded fragment inside a data URL is not a local file');
+});
+
+test('production package excludes raw source candidates', async () => {
+  const build = await readRequired('scripts/build.mjs');
+  assert.doesNotMatch(
+    build,
+    /cp\(path\.join\(root,\s*['"]assets['"]\),[\s\S]{0,120}?recursive:\s*true/,
+    'Build must not copy the complete assets tree',
+  );
+  for (const requiredAsset of [
+    'assets/apple-touch-icon.png',
+    'assets/favicon-32.png',
+    'assets/fonts',
+    'assets/img/webp',
+  ]) {
+    assert.match(build, new RegExp(requiredAsset.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+});
+
 test('declares the approved contacts and removes retired contacts everywhere', async () => {
   const files = await Promise.all([
     readRequired('index.html'),

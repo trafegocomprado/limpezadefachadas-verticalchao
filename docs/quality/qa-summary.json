@@ -1,0 +1,174 @@
+{
+  "executed_at": "2026-07-23",
+  "result": "passed",
+  "health_score": 100,
+  "automated_contracts": {
+    "passed": 26,
+    "failed": 0,
+    "build": "passed",
+    "validation": "passed",
+    "local_links_checked": 11,
+    "git_diff_check": "passed"
+  },
+  "viewports": {
+    "390x844": {
+      "overflow_x": false,
+      "hamburger_count": 0,
+      "h1_count": 1,
+      "figure_count": 3,
+      "gallery_heights_px": [
+        273,
+        273,
+        273
+      ],
+      "mobile_navigation_visible": false,
+      "undersized_targets_below_24px": 0,
+      "broken_images": 0,
+      "console_errors": 0,
+      "failed_local_requests": 0
+    },
+    "375x667": {
+      "overflow_x": false,
+      "hamburger_count": 0,
+      "gallery_heights_px": [
+        261.8,
+        261.8,
+        261.8
+      ],
+      "hero_cta_top_px": 479.4,
+      "hero_cta_bottom_px": 527.4,
+      "hero_cta_visible_in_first_fold": true,
+      "undersized_targets_below_24px": 0,
+      "broken_images": 0,
+      "console_errors": 0,
+      "failed_local_requests": 0
+    },
+    "768x900": {
+      "overflow_x": false,
+      "hamburger_count": 0,
+      "gallery_heights_px": [
+        414,
+        414,
+        414
+      ],
+      "broken_images": 0,
+      "console_errors": 0,
+      "failed_local_requests": 0
+    },
+    "1280x900": {
+      "overflow_x": false,
+      "hamburger_count": 0,
+      "h1_count": 1,
+      "figure_count": 3,
+      "broken_images": 0,
+      "console_errors": 0,
+      "failed_local_requests": 0
+    }
+  },
+  "form": {
+    "empty_submit": {
+      "error_count": 4,
+      "focused_field": "nome",
+      "passed": true
+    },
+    "invalid_email": {
+      "focused_field": "email",
+      "message": "Informe um e-mail válido ou deixe o campo vazio.",
+      "passed": true
+    },
+    "popup_permitted": {
+      "open_arguments": [
+        "",
+        "_blank"
+      ],
+      "opener_cleared": true,
+      "commercial_number": "5531996848477",
+      "passed": true
+    },
+    "popup_blocked": {
+      "accessible_status": true,
+      "recovery_link": true,
+      "commercial_number": "5531996848477",
+      "passed": true
+    }
+  },
+  "consent": {
+    "first_load_visible": true,
+    "first_load_focus_stolen": false,
+    "accept_persisted": true,
+    "manage_reopened_and_focused": true,
+    "deny_persisted": true,
+    "focus_returned": true,
+    "reload_hid_banner": true,
+    "passed": true
+  },
+  "tracking": {
+    "ids": [
+      "GTM-M7GS29F"
+    ],
+    "direct_ga_or_ads_ids": [],
+    "custom_events": [
+      "cta_clicked",
+      "form_submitted",
+      "popup_blocked",
+      "consent_updated"
+    ],
+    "allowed_custom_metadata": [
+      "block_reason",
+      "consent_choice",
+      "contact_method",
+      "cta_location",
+      "cta_text",
+      "form_name"
+    ],
+    "gtm_internal_keys_ignored_for_custom_payload_check": [
+      "gtm.uniqueEventId"
+    ],
+    "forbidden_custom_metadata": [],
+    "pii_keys": [],
+    "passed": true
+  },
+  "accessibility": {
+    "score": 100,
+    "skip_link_first_tab": true,
+    "skip_link_target": "conteudo",
+    "visible_field_focus": true,
+    "unnamed_buttons": 0,
+    "images_missing_alt_attribute": 0,
+    "vision_deficiency_checks": [
+      "protanopia",
+      "deuteranopia",
+      "tritanopia",
+      "grayscale"
+    ]
+  },
+  "design_review": {
+    "classifier": "marketing_landing_page",
+    "design_score": "A",
+    "ai_slop_score": "A",
+    "error_state_score": "A",
+    "accessibility_score": 100,
+    "hard_rejections": 0,
+    "critical_findings": 0,
+    "high_findings": 0,
+    "medium_findings": 0,
+    "fixes_required": 0,
+    "verdict": "A página preserva a identidade institucional, mantém um único foco de conversão no primeiro fold e adapta a composição ao mobile sem menu ou galeria excessivamente alta."
+  },
+  "screenshots": [
+    "mobile-390x844.png",
+    "mobile-fold-375x667.png",
+    "mobile-fold-375x667-viewport.png",
+    "tablet-768x900.png",
+    "desktop-1280x900.png",
+    "form-popup-blocked.png",
+    "a11y-protanopia.png",
+    "a11y-deuteranopia.png",
+    "a11y-tritanopia.png",
+    "a11y-grayscale.png"
+  ],
+  "production_checks": {
+    "status": "pending_task_9",
+    "lighthouse_mobile": "pending_task_9"
+  }
+}

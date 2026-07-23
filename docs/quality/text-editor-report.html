@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Editor BR v1.3 — Relatório</title>
+<style>
+:root {--bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2e3345;--text:#e4e4e7;--text-muted:#9ca3af;--accent:#818cf8;--red:#ef4444;--yellow:#eab308;--green:#22c55e;--blue:#60a5fa;--purple:#a78bfa;--orange:#f97316;--teal:#2dd4bf;--pink:#f472b6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:2rem;}
+.container{max-width:960px;margin:0 auto;}
+.header{text-align:center;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+.header h1{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.25rem;}
+.header .subtitle{color:var(--text-muted);font-size:0.85rem;}
+.score-hero{display:flex;gap:2rem;align-items:center;justify-content:center;margin-bottom:2.5rem;flex-wrap:wrap;}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:4px solid #22c55e;background:#22c55e15;}
+.score-circle .number{font-size:2.5rem;font-weight:800;color:#22c55e;line-height:1;}
+.score-circle .label{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;}
+.score-details{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 2rem;}
+.score-detail{display:flex;flex-direction:column;}
+.score-detail .val{font-size:1.25rem;font-weight:700;}
+.score-detail .lbl{font-size:0.75rem;color:var(--text-muted);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.card h2{font-size:0.8rem;font-weight:600;margin-bottom:1rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.05em;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;}
+.stat-item{background:var(--surface2);padding:1rem;border-radius:8px;text-align:center;}
+.stat-item .num{font-size:1.5rem;font-weight:700;}
+.stat-item .txt{font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;}
+.goal-row{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
+.goal-row:last-child{border-bottom:none;}
+.goal-bar{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.goal-fill{height:100%;border-radius:4px;}
+.goal-label{font-size:0.85rem;min-width:140px;}
+.goal-count{font-size:0.85rem;min-width:60px;text-align:right;color:var(--text-muted);}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-muted);}
+.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+.text-display{font-family:'Georgia',serif;font-size:1.05rem;line-height:1.9;color:var(--text);}
+.text-display p{margin-bottom:1rem;}
+.hl-sentence-red{background:rgba(239,68,68,0.2);border-radius:3px;padding:1px 0;}
+.hl-sentence-yellow{background:rgba(234,179,8,0.15);border-radius:3px;padding:1px 0;}
+.hl-green{background:rgba(34,197,94,0.25);border-bottom:2px solid var(--green);border-radius:2px;padding:0 2px;cursor:help;}
+.hl-blue{background:rgba(96,165,250,0.25);border-bottom:2px solid var(--blue);border-radius:2px;padding:0 2px;cursor:help;}
+.hl-purple{background:rgba(167,139,250,0.25);border-bottom:2px solid var(--purple);border-radius:2px;padding:0 2px;cursor:help;}
+.hl-orange{background:rgba(249,115,22,0.25);border-bottom:2px solid var(--orange);border-radius:2px;padding:0 2px;cursor:help;}
+.hl-teal{background:rgba(45,212,191,0.25);border-bottom:2px solid var(--teal);border-radius:2px;padding:0 2px;cursor:help;}
+.hl-pink{background:rgba(244,114,182,0.25);border-bottom:2px solid var(--pink);border-radius:2px;padding:0 2px;cursor:help;}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+th{text-align:left;padding:0.5rem;border-bottom:2px solid var(--border);color:var(--text-muted);font-weight:600;font-size:0.75rem;text-transform:uppercase;}
+td{padding:0.5rem;border-bottom:1px solid var(--border);vertical-align:top;}
+td code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:0.8rem;}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;}
+.dot-red{background:var(--red);}
+.dot-yellow{background:var(--yellow);}
+.dot-green{background:var(--green);}
+.dot-blue{background:var(--blue);}
+.dot-purple{background:var(--purple);}
+.dot-orange{background:var(--orange);}
+.dot-teal{background:var(--teal);}
+.dot-pink{background:var(--pink);}
+.action-item{padding:0.75rem 0;border-bottom:1px solid var(--border);line-height:1.5;}
+.action-item:last-child{border-bottom:none;}
+.action-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;text-transform:uppercase;margin-right:8px;letter-spacing:0.05em;}
+.badge-orange{background:rgba(249,115,22,0.2);color:var(--orange);}
+.badge-red{background:rgba(239,68,68,0.2);color:var(--red);}
+.badge-yellow{background:rgba(234,179,8,0.2);color:var(--yellow);}
+.badge-green{background:rgba(34,197,94,0.2);color:var(--green);}
+.badge-blue{background:rgba(96,165,250,0.2);color:var(--blue);}
+.badge-purple{background:rgba(167,139,250,0.2);color:var(--purple);}
+.badge-teal{background:rgba(45,212,191,0.2);color:var(--teal);}
+.badge-pink{background:rgba(244,114,182,0.2);color:var(--pink);}
+.summary-ok{color:var(--green);font-weight:600;padding:1rem 0;}
+.ai-cats{display:flex;flex-direction:column;gap:0.5rem;}
+.ai-cat-row{display:flex;justify-content:space-between;padding:0.5rem;background:var(--surface2);border-radius:6px;}
+.ai-cat-label{color:var(--orange);font-weight:500;}
+.ai-cat-count{font-weight:700;}
+.ai-note{margin-top:1rem;font-size:0.8rem;color:var(--text-muted);font-style:italic;}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;}
+.comp-metric{background:var(--surface2);padding:1rem;border-radius:8px;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.comp-label{font-size:0.75rem;color:var(--text-muted);width:100%;margin-bottom:0.25rem;}
+.comp-before,.comp-after{font-size:1.25rem;font-weight:700;}
+.comp-arrow{color:var(--text-muted);}
+.delta-up{color:var(--green);font-size:0.85rem;font-weight:600;}
+.delta-down{color:var(--red);font-size:0.85rem;font-weight:600;}
+.delta-neutral{color:var(--text-muted);font-size:0.85rem;}
+.comp-verdict{margin-top:1rem;padding:0.75rem;border-radius:8px;text-align:center;font-size:0.9rem;}
+.comp-improved{background:rgba(34,197,94,0.1);color:var(--green);}
+.comp-regressed{background:rgba(239,68,68,0.1);color:var(--red);}
+.footer{text-align:center;padding-top:2rem;margin-top:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;}
+@media(max-width:600px){body{padding:1rem;}.score-hero{flex-direction:column;}.score-details{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📝 Text Editor BR <sup style="font-size:0.5em;color:var(--text-muted)">v1.3</sup></h1>
+    <div class="subtitle">Relatório de Legibilidade · Landing page · 22/07/2026 23:56</div>
+  </div>
+
+
+
+  <div class="score-hero">
+    <div class="score-circle">
+      <span class="number">98</span>
+      <span class="label">Score</span>
+    </div>
+    <div class="score-details">
+      <div class="score-detail"><span class="val" style="color:#22c55e">A</span><span class="lbl">Grade</span></div>
+      <div class="score-detail"><span class="val">46.1</span><span class="lbl">Flesch PT-BR (Difícil)</span></div>
+      <div class="score-detail"><span class="val">9.2</span><span class="lbl">Palavras / frase</span></div>
+      <div class="score-detail"><span class="val">52.3%</span><span class="lbl">Burstiness (Alto ✓)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Ações prioritárias</h2>
+    <div class="actions-list"><div class="action-item"><span class="action-badge badge-red">ALTO</span> Dividir 2 frase(s) muito difíceis de ler (30+ palavras cada).</div><div class="action-item"><span class="action-badge badge-yellow">MÉDIO</span> Simplificar 2 frase(s) difíceis de ler.</div><div class="action-item"><span class="action-badge badge-pink">MÉDIO</span> Melhorar estrutura: 1 issue(s) de parágrafos longos, aberturas repetidas ou eco de palavras.</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Estatísticas</h2>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="num">737</div><div class="txt">Palavras</div></div>
+      <div class="stat-item"><div class="num">80</div><div class="txt">Frases</div></div>
+      <div class="stat-item"><div class="num">91</div><div class="txt">Parágrafos</div></div>
+      <div class="stat-item"><div class="num">4min</div><div class="txt">Tempo de leitura</div></div>
+      <div class="stat-item"><div class="num">5</div><div class="txt">Issues</div></div>
+      <div class="stat-item"><div class="num">5.1</div><div class="txt">Chars / palavra</div></div>
+      <div class="stat-item"><div class="num">7.0</div><div class="txt">ARI (secundário)</div></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>Metas de qualidade</h2>
+    <div class="goal-row">
+      <span class="goal-label">Advérbios</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 0%; background: #22c55e;"></div></div>
+      <span class="goal-count">0 / 4</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Voz passiva</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 0%; background: #22c55e;"></div></div>
+      <span class="goal-count">0 / 8</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Frases complexas</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 33%; background: #22c55e;"></div></div>
+      <span class="goal-count">4 / 12</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Padrões de IA</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 0%; background: #22c55e;"></div></div>
+      <span class="goal-count">0 / 0</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Vícios PT-BR</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 0%; background: #22c55e;"></div></div>
+      <span class="goal-count">0 / 0</span>
+    </div>
+    <div class="goal-row">
+      <span class="goal-label">Estrutura</span>
+      <div class="goal-bar"><div class="goal-fill" style="width: 6%; background: #22c55e;"></div></div>
+      <span class="goal-count">1 / 18</span>
+    </div></div>
+
+
+  <div class="card">
+    <h2>Texto com highlights</h2>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(239,68,68,0.3)"></div> Muito difícil</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(234,179,8,0.25)"></div> Difícil</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(249,115,22,0.35)"></div> Padrão de IA</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(167,139,250,0.35)"></div> Rebuscada</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(96,165,250,0.35)"></div> Advérbio</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(34,197,94,0.35)"></div> Passiva</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(45,212,191,0.35)"></div> Vício PT-BR</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:rgba(244,114,182,0.35)"></div> Estrutura</div>
+    </div>
+    <div class="text-display"><p># Copy final — Limpeza de Fachadas Vertical Chão.
+
+## Cabeçalho.</p><p>&nbsp;</p><p>## Cabeçalho.</p><p>&nbsp;</p><p>E-mail: `verticalchao@gmail.com`.</p><p>&nbsp;</p><p>Telefone: `(31) 99684-8477`.</p><p>&nbsp;</p><p>Ações: `Ligar agora` | `Pedir avaliação pelo WhatsApp`.
+
+## Hero.</p><p>&nbsp;</p><p>## Hero.</p><p>&nbsp;</p><p>Sobretítulo: `Limpeza de fachadas e vidros`.
+
+# Limpeza profissional de fachadas e vidros.</p><p>&nbsp;</p><p># Limpeza profissional de fachadas e vidros.</p><p>&nbsp;</p><p>Atendimento para condomínios e empresas.</p><p>&nbsp;</p><p>A Vertical Chão faz a limpeza externa de prédios. A equipe trabalha em fachadas e vidros.</p><p>&nbsp;</p><p>Antes do serviço, a equipe visita o local. Nessa visita, verifica o material, a sujeira, o acesso e o estado da superfície.</p><p>&nbsp;</p><p>CTA principal: `Pedir avaliação pelo WhatsApp`.</p><p>&nbsp;</p><p>CTA secundário: `Ligar para (31) 99684-8477`.
+
+## O que a equipe verifica.
+
+### A fachada.</p><p>&nbsp;</p><p>## O que a equipe verifica.</p><p>&nbsp;</p><p>### A fachada.</p><p>&nbsp;</p><p>A vistoria mostra o material e o estado da superfície.
+
+### A sujeira.</p><p>&nbsp;</p><p>### A sujeira.</p><p>&nbsp;</p><p><span class="hl-sentence-yellow">O tipo e o acúmulo de sujeira ajudam a definir a limpeza.
+
+### Trabalho em altura.</span></p><p>&nbsp;</p><p>### Trabalho em altura.</p><p>&nbsp;</p><p>A equipe avalia o acesso aos pontos incluídos no serviço.
+
+### A área ao redor.</p><p>&nbsp;</p><p>### A área ao redor.</p><p>&nbsp;</p><p>A equipe planeja o cuidado com a circulação e as áreas próximas.</p><p>&nbsp;</p><p>## Uma vistoria para cada prédio.</p><p>&nbsp;</p><p>Vidro, pintura e revestimento podem ter estados diferentes. A sujeira também muda de um ponto para outro.</p><p>&nbsp;</p><p>Por isso, a equipe olha o prédio antes de definir o serviço. Material, superfície, acesso e sujeira orientam o método e o escopo.</p><p>&nbsp;</p><p>CTA: `Quero avaliar minha fachada`.</p><p>&nbsp;</p><p>## Como funciona.</p><p>&nbsp;</p><p>### 1. Vistoria.</p><p>&nbsp;</p><p>A equipe observa a fachada, os acessos e a área ao redor.</p><p>&nbsp;</p><p>### 2. Planejamento.</p><p>&nbsp;</p><p>Com a visita feita, define o método e os pontos de proteção.</p><p>&nbsp;</p><p>### 3. Limpeza.</p><p>&nbsp;</p><p>A equipe trabalha nos pontos combinados da fachada.</p><p>&nbsp;</p><p>### 4. Conferência.</p><p>&nbsp;</p><p>No fim, a equipe confere as áreas incluídas no serviço.</p><p>&nbsp;</p><p>## Registros do serviço.</p><p>&nbsp;</p><p>Três fotos da página original da Vertical Chão.</p><p>&nbsp;</p><p>Imagem 1. Dois profissionais limpam uma fachada de vidro com apoio de andaime.</p><p>&nbsp;</p><p>Imagem 2. Profissional em acesso por corda limpa o revestimento externo.</p><p>&nbsp;</p><p>Imagem 3. Fachada envidraçada de edifício comercial vista da rua.</p><p>&nbsp;</p><p>## Relatos sobre limpeza de fachada.</p><p>&nbsp;</p><p>Nota: os textos abaixo são resumos. Mantivemos nome, cargo e sentido original.</p><p>&nbsp;</p><p>### Eduardo L.</p><p>&nbsp;</p><p>Síndico do Condomínio Alameda Prime.</p><p>&nbsp;</p><p>Para Eduardo, a limpeza melhorou a aparência da fachada. Ele destacou o cuidado com os detalhes e a comunicação da equipe.</p><p>&nbsp;</p><p>### Ricardo M.</p><p>&nbsp;</p><p>Administrador do Condomínio Bela Vista.</p><p>&nbsp;</p><p>Ricardo contou que a Vertical Chão limpou as fachadas. Segundo ele, o serviço não atrapalhou o fluxo dos moradores. O relato também cita a organização da área e o compromisso da equipe.</p><p>&nbsp;</p><p>### André C.</p><p>&nbsp;</p><p>Síndico do Condomínio Jardim das Palmeiras.</p><p>&nbsp;</p><p>André destacou o atendimento de Ademar, da vistoria à entrega. Segundo ele, Ademar explicou as etapas com clareza e manteve contato durante o serviço. Ele também citou a limpeza e a organização.</p><p>&nbsp;</p><p>## Experiências gerais com a Vertical Chão.</p><p>&nbsp;</p><p>Nota: estes relatos falam de obras, pintura ou manutenção. Eles tratam da experiência geral com a empresa. Os casos de limpeza estão no bloco anterior.</p><p>&nbsp;</p><p>### Valéria Moreira.</p><p>&nbsp;</p><p>Síndico do Condomínio Alameda Prime.</p><p>&nbsp;</p><p>Valéria contou que o prédio tem 13 andares e 81 unidades. A pintura estava havia mais de 12 anos sem manutenção.</p><p>&nbsp;</p><p>O condomínio conheceu a Vertical Chão em 2021. Após comparar 11 orçamentos, escolheu a empresa. Valéria citou a organização diária e a entrega no prazo.</p><p>&nbsp;</p><p>### Luiz Augusto.</p><p>&nbsp;</p><p>Síndica Profissional.</p><p>&nbsp;</p><p>Luiz citou os equipamentos de segurança da equipe. Também falou do conhecimento em obras e acabamentos horizontais e verticais. Seu relato menciona as condições comerciais e a compra de materiais.</p><p>&nbsp;</p><p>### Idalécio Gomes.</p><p>&nbsp;</p><p>Administrador do Edifício Centro Empresarial Raja Gabaglia 1001.</p><p>&nbsp;</p><p>Idalécio falou de obras e manutenção em seu condomínio. Ele destacou as proteções, a segurança e a qualidade do serviço.</p><p>&nbsp;</p><p>### Fernanda S.</p><p>&nbsp;</p><p>Síndica Profissional.</p><p>&nbsp;</p><p>Fernanda comparou a Vertical Chão com outras empresas que já contratou. Seu relato cita segurança, limpeza e acabamento. Ela recomenda a empresa a condomínios.</p><p>&nbsp;</p><p>## Outros serviços.</p><p>&nbsp;</p><p>### Reposição de pastilhas.</p><p>&nbsp;</p><p>Link: `Ver reposição de pastilhas`.</p><p>&nbsp;</p><p>### Pintura de fachadas.</p><p>&nbsp;</p><p>Link: `Ver pintura de fachadas`.</p><p>&nbsp;</p><p>### Aplicação de Ecogranito.</p><p>&nbsp;</p><p>Link: `Ver aplicação de Ecogranito`.</p><p>&nbsp;</p><p>## Peça uma avaliação.</p><p>&nbsp;</p><p>Conte o que precisa ser verificado no prédio. Ao enviar, o site abre sua mensagem no WhatsApp comercial da Vertical Chão.</p><p>&nbsp;</p><p>A vistoria ajuda a definir o escopo do orçamento.</p><p>&nbsp;</p><p>Campos:</p><p>&nbsp;</p><p>- `Seu nome`.</p><p>- `Seu telefone`.</p><p>- `E-mail (opcional)`.</p><p>- `Assunto`.</p><p>- `Mensagem`.</p><p>&nbsp;</p><p>CTA: `Enviar pedido pelo WhatsApp`.</p><p>&nbsp;</p><p>Alternativa: `Ligar para (31) 99684-8477`.</p><p>&nbsp;</p><p>## Rodapé.</p><p>&nbsp;</p><p>### Telefones.</p><p>&nbsp;</p><p>- Comercial: `(31) 99684-8477`.</p><p>- Secundário: `(31) 98712-2106`.</p><p>- `Chat via WhatsApp`.</p><p>&nbsp;</p><p>### E-mail.</p><p>&nbsp;</p><p>- `verticalchao@gmail.com`.</p><p>&nbsp;</p><p>### Endereço.</p><p>&nbsp;</p><p>- `Av. Deputado Ulisses Guimarães, 385`.</p><p>- `Bairro Felixlândia`.</p><p>- `Justinópolis – MG`.</p><p>&nbsp;</p><p>### Dados institucionais.</p><p>&nbsp;</p><p>- `CNPJ: 22.195.936/0001-58`.</p><p>- `Responsável Técnico`.</p><p>- `Ademar R. da Silva`.</p><p>- `CFT/BR: 141201165-5`.</p><p>&nbsp;</p><p>### Privacidade.</p><p>&nbsp;</p><p>- `Rever preferências de cookies`.</p></div>
+  </div>
+
+
+
+  <div class="card">
+    <h2>Findings detalhados (5)</h2>
+    <table><thead><tr><th>Tipo</th><th>Trecho</th><th>Sugestão</th></tr></thead>
+    <tbody><tr><td><span class="dot dot-yellow"></span> Frase difícil</td><td><code></code></td><td>Frase com 15 palavras — difícil de ler (Landing page: limite 15). Considere simplificar.</td></tr><tr><td><span class="dot dot-yellow"></span> Frase difícil</td><td><code></code></td><td>Frase com 15 palavras — difícil de ler (Landing page: limite 15). Considere simplificar.</td></tr><tr><td><span class="dot dot-red"></span> Frase muito difícil</td><td><code></code></td><td>Frase com 26 palavras — muito difícil de ler (Landing page: limite 25). Divida em frases menores.</td></tr><tr><td><span class="dot dot-red"></span> Frase muito difícil</td><td><code></code></td><td>Frase com 31 palavras — muito difícil de ler (Landing page: limite 25). Divida em frases menores.</td></tr><tr><td><span class="dot dot-pink"></span> Início repetido</td><td><code>&quot;Link&quot; abre 3 frases seguidas</code></td><td>3 frases consecutivas começam com &quot;link&quot;. Varie as aberturas.</td></tr></tbody></table>
+  </div>
+
+  <div class="footer">Text Editor BR v1.3 · Motor de análise para PT-BR inspirado no Hemingway Editor<br>Desenvolvido por MPX · Tráfego comPrado</div>
+</div>
+</body>
+</html>
