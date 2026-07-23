@@ -1,0 +1,51 @@
+{
+  "project": "limpezadefachadas-verticalchao",
+  "canonical": "https://limpezadefachadas-verticalchao.pages.dev/",
+  "source": "https://limpezadefachadas.verticalchao.com.br/",
+  "references": {
+    "content_assets_and_tracking": "https://limpezadefachadas.verticalchao.com.br/",
+    "visual_system": "https://verticalchao-institucional.pages.dev/",
+    "technical_pattern": "https://ecogranito-verticalchao.pages.dev/"
+  },
+  "contacts": {
+    "commercial": "+5531996848477",
+    "footer_secondary": "+5531987122106",
+    "email": "verticalchao@gmail.com"
+  },
+  "tracking": {
+    "gtm": "GTM-M7GS29F"
+  },
+  "mobile_menu": false,
+  "assets": [
+    {
+      "path": "assets/img/webp/logo.webp",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2023/02/logomarca_vertical-chao.png"
+    },
+    {
+      "path": "assets/favicon-32.png",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2023/02/logomarca_vertical-chao-150x150.png"
+    },
+    {
+      "path": "assets/apple-touch-icon.png",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2023/02/logomarca_vertical-chao-150x150.png"
+    },
+    {
+      "path": "assets/img/webp/limpeza-obra-1.webp",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2025/12/limpeza-de-fachadas-4.jpeg"
+    },
+    {
+      "path": "assets/img/webp/limpeza-obra-2.webp",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2023/02/l2-1.jpg"
+    },
+    {
+      "path": "assets/img/webp/limpeza-obra-3.webp",
+      "source": "https://limpezadefachadas.verticalchao.com.br/wp-content/uploads/2023/02/l3-1.jpg"
+    }
+  ],
+  "reports": {
+    "anti_ai_writing": "analysis/anti-ai-report.md",
+    "text_editor": "analysis/text-editor-report.html",
+    "text_editor_final_check": "analysis/text-editor-final-check.json"
+  },
+  "generated_at": "2026-07-22"
+}

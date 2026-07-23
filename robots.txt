@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://limpezadefachadas-verticalchao.pages.dev/sitemap.xml

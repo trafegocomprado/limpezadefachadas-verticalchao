@@ -1,0 +1,11 @@
+{
+  "name": "limpezadefachadas-verticalchao",
+  "repository": "trafegocomprado/limpezadefachadas-verticalchao",
+  "platform": "cloudflare-pages",
+  "build": {
+    "command": "npm run build",
+    "output_directory": "public",
+    "root_directory": "/",
+    "production_branch": "main"
+  }
+}
