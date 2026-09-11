@@ -197,6 +197,9 @@
           resetVerification();
         },
       });
+      if (!token && !pending && !lastSubmissionFailed && !['error', 'success'].includes(status?.dataset.state)) {
+        showStatus('Conclua a verificação de segurança para enviar sua mensagem.', 'awaiting');
+      }
     }).catch(() => {
       token = '';
       updateButton();

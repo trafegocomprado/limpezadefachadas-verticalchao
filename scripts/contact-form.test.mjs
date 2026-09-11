@@ -19,7 +19,7 @@ function element(value = '') {
   };
 }
 
-async function harness({ config = { endpoint: 'https://contact.example.test/contact', turnstileSiteKey: 'real-site-key-placeholder' }, fetchResponse, turnstilePresent = true, trackingThrows = false } = {}) {
+async function harness({ config = { endpoint: 'https://contact.example.test/contact', turnstileSiteKey: 'real-site-key-placeholder' }, fetchResponse, turnstilePresent = true, trackingThrows = false, renderCallback } = {}) {
   const fields = Object.fromEntries(Object.entries({ nome: 'Teste de formulário', email: 'teste@example.test', telefone: '', servico: 'Vistoria', mensagem: 'Mensagem de teste controlado.', website: '' }).map(([name, value]) => [name, Object.assign(element(value), { name })]));
   const initialValues = Object.fromEntries(Object.entries(fields).map(([name, field]) => [name, field.value]));
   const status = element();
@@ -50,7 +50,12 @@ async function harness({ config = { endpoint: 'https://contact.example.test/cont
   let loadedScript;
   const layer = trackingThrows ? { push() { throw new Error('analytics unavailable'); } } : [];
   const turnstile = {
-    render(target, options) { assert.equal(target, widget); callbacks = options; return 'widget-1'; },
+    render(target, options) {
+      assert.equal(target, widget);
+      callbacks = options;
+      if (renderCallback) options[renderCallback]('verified-token');
+      return 'widget-1';
+    },
     reset(id) { assert.equal(id, 'widget-1'); resets++; },
   };
   const window = {
@@ -103,6 +108,26 @@ test('no request can be made without a Turnstile token', async () => {
   await h.submit();
   assert.equal(h.calls.length, 0);
   assert.equal(h.button.disabled, true);
+});
+
+test('a rendered Turnstile asks the visitor to complete verification instead of claiming it is still loading', async () => {
+  const h = await harness();
+  assert.equal(h.status.textContent, 'Conclua a verificação de segurança para enviar sua mensagem.');
+  assert.equal(h.status.dataset.state, 'awaiting');
+  assert.equal(h.button.disabled, true);
+  assert.equal(h.calls.length, 0);
+  h.completeToken();
+  assert.equal(h.status.dataset.state, 'ready');
+  assert.equal(h.button.disabled, false);
+});
+
+test('the post-render instruction preserves verification callbacks fired during render', async () => {
+  for (const renderCallback of ['callback', 'error-callback', 'expired-callback', 'timeout-callback']) {
+    const h = await harness({ renderCallback });
+    assert.equal(h.status.dataset.state, renderCallback === 'callback' ? 'ready' : 'error');
+    assert.equal(h.button.disabled, renderCallback !== 'callback');
+    assert.doesNotMatch(h.status.textContent, /para enviar sua mensagem\.$/);
+  }
 });
 
 test('email is required and errors preserve the typed values', async () => {
