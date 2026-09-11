@@ -1,15 +1,12 @@
 (() => {
   "use strict";
 
-  const WHATSAPP_NUMBER = "5531996848477";
   const CONSENT_STORAGE_KEY = "verticalchao_consent";
   const TRACKING_METADATA_KEYS = new Set([
-    "block_reason",
     "consent_choice",
     "contact_method",
     "cta_location",
     "cta_text",
-    "form_name",
   ]);
 
   function trackEvent(eventName, metadata = {}) {
@@ -122,116 +119,12 @@
     headerObserver.observe(hero);
   }
 
-  const whatsappForm = document.querySelector("[data-whatsapp-form]");
-  const formStatus = document.querySelector("[data-form-status]");
-  const formErrors = new Map(
-    [...document.querySelectorAll("[data-error-for]")].map((error) => [error.dataset.errorFor, error]),
-  );
-  const fieldNames = ["nome", "telefone", "email", "assunto", "mensagem"];
-
-  function getFormField(name) {
-    return whatsappForm?.querySelector(`[name="${name}"]`) ?? null;
+  // Keep the floating contact control clear of the mobile email form.
+  const contactForm = document.querySelector('[data-contact-form]');
+  const floatingWhatsApp = document.querySelector('[data-whatsapp-widget], .floating-whatsapp, .whatsapp-float');
+  if (contactForm && floatingWhatsApp && typeof IntersectionObserver === 'function') {
+    new IntersectionObserver(([entry]) => {
+      floatingWhatsApp.dataset.contactVisible = entry.isIntersecting ? 'true' : 'false';
+    }).observe(contactForm);
   }
-
-  function clearFieldError(field) {
-    field.removeAttribute("aria-invalid");
-    const error = formErrors.get(field.name);
-    if (error) error.textContent = "";
-  }
-
-  function setFieldError(field, message) {
-    field.setAttribute("aria-invalid", "true");
-    const error = formErrors.get(field.name);
-    if (error) error.textContent = message;
-  }
-
-  function validateForm() {
-    const invalid = [];
-    const messages = {
-      nome: "Informe seu nome.",
-      assunto: "Informe o assunto.",
-      mensagem: "Escreva uma mensagem.",
-    };
-
-    for (const name of fieldNames) {
-      const field = getFormField(name);
-      if (!field) continue;
-      clearFieldError(field);
-      const value = field.value.trim();
-      let message = "";
-
-      if (field.required && !value) {
-        message = messages[name] || "Preencha este campo.";
-      } else if (name === "telefone" && value.replace(/\D/g, "").length < 10) {
-        message = "Informe um telefone com pelo menos 10 dígitos.";
-      } else if (name === "email" && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        message = "Informe um e-mail válido ou deixe o campo vazio.";
-      }
-
-      if (message) {
-        setFieldError(field, message);
-        invalid.push(field);
-      }
-    }
-
-    return invalid;
-  }
-
-  function buildWhatsAppUrl() {
-    const message = [
-      "Olá, preciso de um atendimento!",
-      "",
-      `Nome: ${getFormField("nome").value.trim()}`,
-      `Telefone: ${getFormField("telefone").value.trim()}`,
-      `E-mail: ${getFormField("email").value.trim() || "Não informado"}`,
-      `Assunto: ${getFormField("assunto").value.trim()}`,
-      `Mensagem: ${getFormField("mensagem").value.trim()}`,
-    ].join("\n");
-    return `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
-  }
-
-  function showBlockedPopupRecovery(url) {
-    if (!formStatus) return;
-    formStatus.replaceChildren();
-    formStatus.textContent = "O WhatsApp não abriu porque a nova janela foi bloqueada. ";
-    const recoveryLink = document.createElement("a");
-    recoveryLink.href = url;
-    recoveryLink.setAttribute("data-form-recovery", "");
-    recoveryLink.textContent = "Abrir o WhatsApp";
-    formStatus.append(recoveryLink);
-  }
-
-  whatsappForm?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (formStatus) {
-      formStatus.replaceChildren();
-      formStatus.textContent = "";
-    }
-
-    const invalid = validateForm();
-    if (invalid.length) {
-      if (formStatus) formStatus.textContent = "Revise os campos indicados.";
-      invalid[0].focus();
-      return;
-    }
-
-    const url = buildWhatsAppUrl();
-    const popup = window.open("", "_blank");
-    trackEvent("form_submitted", {
-      contact_method: "whatsapp",
-      form_name: "limpeza_orcamento",
-    });
-
-    if (popup) {
-      popup.opener = null;
-      popup.location.href = url;
-    } else {
-      showBlockedPopupRecovery(url);
-      trackEvent("popup_blocked", {
-        block_reason: "browser",
-        contact_method: "whatsapp",
-        form_name: "limpeza_orcamento",
-      });
-    }
-  });
 })();

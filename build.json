@@ -117,5 +117,32 @@
   "warnings": [
     "Atualize canonical, og:url, robots.txt e sitemap.xml quando o domínio personalizado for definido."
   ],
-  "generated_at": "2026-07-23"
+  "generated_at": "2026-07-23",
+  "contact_form": {
+    "method": "POST",
+    "destination_email": "verticalchao@gmail.com",
+    "client": "contact-form.js",
+    "configuration": "contact-config.js",
+    "fields": {
+      "required": [
+        "nome",
+        "email",
+        "servico",
+        "mensagem"
+      ],
+      "optional": [
+        "telefone"
+      ],
+      "honeypot": "website"
+    },
+    "turnstile_action": "contact",
+    "success_requires": [
+      "ok:true",
+      "requestId"
+    ],
+    "configuration_status": "configured",
+    "production_delivery_status": "pending_verification",
+    "verified_locally": "2026-09-10",
+    "verification_mode": "mocked_responses_no_external_submission"
+  }
 }

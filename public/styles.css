@@ -1012,6 +1012,7 @@ p {
   justify-content: center;
   min-width: 56px;
   min-height: 56px;
+  gap: 10px;
   padding: 12px 18px;
   border-radius: 999px;
   background: var(--whatsapp);
@@ -1024,13 +1025,11 @@ p {
     transform var(--motion-fast) ease-out;
 }
 
-.whatsapp-widget::before {
-  width: 12px;
-  height: 12px;
-  margin-right: var(--space-2);
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  content: "";
+.whatsapp-widget svg {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  fill: currentColor;
 }
 
 .whatsapp-widget:hover {
@@ -1272,16 +1271,13 @@ p {
   .whatsapp-widget {
     right: var(--space-4);
     bottom: var(--space-4);
-    width: auto;
-    height: auto;
-    padding: 12px var(--space-4);
-    font-size: 16px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
   }
 
-  .whatsapp-widget::before {
-    width: 18px;
-    height: 18px;
-    margin-right: var(--space-2);
+  .whatsapp-widget span {
+    display: none;
   }
 
   .consent-banner {
@@ -1465,4 +1461,18 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Email contact form */
+.contact-honeypot { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.contact-security, .contact-fallback, [data-contact-form] > noscript { grid-column: 1 / -1; min-width: 0; }
+.contact-security { min-height: 0; }
+.contact-fallback { margin: 0; font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.contact-fallback a { color: inherit; text-decoration: underline; }
+[data-contact-form] button:disabled { opacity: .65; cursor: not-allowed; }
+[data-form-status][data-state="error"] { color: #a52b1a; }
+[data-form-status][data-state="success"] { color: #176437; }
+
+@media (max-width: 680px) {
+  .floating-whatsapp[data-contact-visible="true"], .whatsapp-float[data-contact-visible="true"], [data-whatsapp-widget][data-contact-visible="true"] { visibility: hidden; pointer-events: none; }
 }

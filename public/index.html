@@ -316,7 +316,7 @@
         <div class="container contact-layout">
           <div class="contact-section__intro">
             <h2 id="contact-title">Peça uma avaliação</h2>
-            <p>Conte o que precisa ser verificado no prédio. Ao enviar, o site abre sua mensagem no WhatsApp comercial da Vertical Chão.</p>
+            <p>Conte o que precisa ser verificado no prédio. Enviaremos seu pedido por e-mail ao atendimento comercial da Vertical Chão.</p>
             <p>A vistoria ajuda a definir o escopo do orçamento.</p>
             <a
               class="text-link text-link--light"
@@ -327,34 +327,38 @@
             >Ligar para (31) 99684-8477</a>
           </div>
 
-          <form class="contact-form" data-whatsapp-form novalidate>
+          <form class="contact-form" data-contact-form data-form-name="limpeza_orcamento" method="post" action="#orcamento" novalidate>
             <div class="form-field">
               <label for="nome">Seu nome</label>
-              <input id="nome" name="nome" type="text" autocomplete="name" required aria-describedby="nome-error">
+              <input id="nome" name="nome" minlength="2" maxlength="120" type="text" autocomplete="name" required aria-describedby="nome-error">
               <span class="form-field__error" id="nome-error" data-error-for="nome"></span>
             </div>
             <div class="form-field">
-              <label for="telefone">Seu telefone</label>
-              <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="telefone-error">
+              <label for="telefone">Telefone <span>(opcional)</span></label>
+              <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="telefone-error">
               <span class="form-field__error" id="telefone-error" data-error-for="telefone"></span>
             </div>
             <div class="form-field">
-              <label for="email">E-mail <span>(opcional)</span></label>
-              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="email-error">
+              <label for="email">Seu e-mail</label>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="email-error" required>
               <span class="form-field__error" id="email-error" data-error-for="email"></span>
             </div>
             <div class="form-field">
-              <label for="assunto">Assunto</label>
-              <input id="assunto" name="assunto" type="text" required aria-describedby="assunto-error">
-              <span class="form-field__error" id="assunto-error" data-error-for="assunto"></span>
+              <label for="servico">Serviço</label>
+              <input id="servico" name="servico" type="text" placeholder="Ex.: limpeza de fachada ou vidros" required aria-describedby="servico-error">
+              <span class="form-field__error" id="servico-error" data-error-for="servico"></span>
             </div>
             <div class="form-field form-field--wide">
               <label for="mensagem">Mensagem</label>
               <textarea id="mensagem" name="mensagem" rows="5" required aria-describedby="mensagem-error"></textarea>
               <span class="form-field__error" id="mensagem-error" data-error-for="mensagem"></span>
             </div>
-            <button class="button button--primary form-field--wide" type="submit">Enviar pedido pelo WhatsApp</button>
+            <div class="contact-honeypot" aria-hidden="true"><label for="website">Deixe este campo em branco</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <div class="contact-security" data-turnstile aria-label="Verificação de segurança"></div>
+            <button class="button button--primary form-field--wide" type="submit" disabled>Enviar pedido por e-mail</button>
             <p class="form-status form-field--wide" data-form-status role="status" aria-live="polite"></p>
+            <p class="contact-fallback" data-contact-fallback>Se preferir, escreva para <a href="mailto:verticalchao@gmail.com">verticalchao@gmail.com</a>.</p>
+            <noscript><p class="contact-fallback">Ative o JavaScript para usar o formulário ou envie seu pedido para <a href="mailto:verticalchao@gmail.com">verticalchao@gmail.com</a>.</p></noscript>
           </form>
         </div>
       </section>
@@ -391,7 +395,7 @@
         <section aria-labelledby="footer-company">
           <h2 id="footer-company">Dados institucionais</h2>
           <p>CNPJ: 22.195.936/0001-58</p>
-          <p>Responsável Técnico<br>Ademar R. da Silva<br>CFT/BR: 141201165-5</p>
+          <p>Responsável Técnico<br>Ademar R. da Silva<br>Registro: 141201165-5</p>
         </section>
       </div>
       <div class="container site-footer__bottom">
@@ -428,7 +432,8 @@
       data-cta-location="floating_widget"
       data-contact-method="whatsapp"
     >
-      <span aria-hidden="true">WhatsApp</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.13c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.84-1.23-4.7-4.1-4.84-4.29-.14-.19-1.16-1.54-1.16-2.95 0-1.4.73-2.09 1-2.38.26-.28.57-.35.76-.35h.55c.18 0 .41-.07.64.49.24.58.8 2 .87 2.14.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.56.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.2 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.18-.28.36-.23.6-.14.24.09 1.55.73 1.81.87.28.14.46.21.53.32.07.13.07.68-.17 1.35z"/></svg>
+      <span>Atendimento</span>
     </a>
 
     <aside class="consent-banner" data-consent-banner aria-labelledby="consent-title" hidden>
@@ -443,5 +448,7 @@
     </aside>
 
     <script src="script.js" defer></script>
+    <script src="contact-config.js" defer></script>
+    <script src="contact-form.js" defer></script>
   </body>
 </html>

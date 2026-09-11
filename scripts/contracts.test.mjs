@@ -495,8 +495,6 @@ test('declares the approved contacts and removes retired contacts everywhere', a
   assert.doesNotMatch(outsideFooter, /\(31\)\s*98712-2106/);
   assert.ok(widget, 'The floating WhatsApp link must use data-whatsapp-widget');
   assert.match(widget.replaceAll('&amp;', '&'), new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(files[2], /const\s+WHATSAPP_NUMBER\s*=\s*["']5531996848477["']/);
-  assert.match(files[2], /api\.whatsapp\.com\/send\?phone=\$\{WHATSAPP_NUMBER\}&text=\$\{encodeURIComponent\(/);
 });
 
 test('uses exactly the original GTM container and no direct analytics IDs', async () => {
@@ -577,40 +575,15 @@ test('provides revisable Consent Mode v2 with denied defaults', async () => {
   assert.match(script, /consentManage\??\.addEventListener\(\s*['"]click['"][\s\S]{0,300}?showConsentBanner/);
 });
 
-test('builds an accessible WhatsApp form for the approved commercial number', async () => {
-  const html = await readRequired('index.html');
-  const script = await readRequired('script.js');
-
-  assert.match(html, /<form\b[^>]*data-whatsapp-form[^>]*novalidate/);
-  for (const name of ['nome', 'telefone', 'email', 'assunto', 'mensagem']) {
-    assert.match(html, new RegExp(`name=["']${name}["']`));
-  }
-  assert.match(script, /5531996848477/);
-  assert.match(script, /encodeURIComponent/);
-  assert.match(script, /aria-invalid/);
-  assert.match(script, /\.focus\(\)/);
-});
-
-test('uses a detectable WhatsApp popup with a safe opener and blocked fallback', async () => {
-  const html = await readRequired('index.html');
-  const script = await readRequired('script.js');
-
-  assert.match(script, /window\.open\(\s*['"]['"]\s*,\s*['"]_blank['"]\s*\)/);
-  assert.match(script, /popup\.opener\s*=\s*null/);
-  assert.match(script, /popup\.location\.href\s*=\s*url/);
-  assert.match(script, /popup_blocked/);
-  assert.match(html, /(?:role=["']status["']|aria-live=["'](?:polite|assertive)["'])/);
-});
-
 test('keeps analytics event payloads free from personal form fields', async () => {
   const script = await readRequired('script.js');
   const calls = extractCalls(script, 'trackEvent').filter((call) => !/^\s*eventName\b/.test(call));
   const helperBody = extractFunctionBody(script, 'trackEvent');
   const allowedDeclaration = script.match(/const\s+TRACKING_METADATA_KEYS\s*=\s*new\s+Set\(\s*\[([\s\S]*?)\]\s*\)/)?.[1] ?? '';
   const declaredKeys = [...allowedDeclaration.matchAll(/["']([a-z_]+)["']/g)].map((match) => match[1]);
-  const allowedKeys = ['block_reason', 'consent_choice', 'contact_method', 'cta_location', 'cta_text', 'form_name'];
+  const allowedKeys = ['consent_choice', 'contact_method', 'cta_location', 'cta_text'];
 
-  assert.ok(calls.length >= 4, 'Expected custom event calls for CTA, form, popup, and consent');
+  assert.equal(calls.length, 2, 'Expected independent CTA and consent events');
   assert.deepEqual([...declaredKeys].sort(), allowedKeys);
   assert.match(helperBody, /Object\.entries\(metadata\)/);
   assert.match(helperBody, /TRACKING_METADATA_KEYS\.has\(key\)/);
@@ -622,7 +595,7 @@ test('keeps analytics event payloads free from personal form fields', async () =
     const metadataKeys = [...call.matchAll(/(?:\{|,)\s*([a-z_][a-z\d_]*)\s*(?=:|[,}])/gi)].map((match) => match[1]);
     for (const key of metadataKeys) assert.ok(allowedKeys.includes(key), `Forbidden tracking metadata key: ${key}`);
   }
-  for (const eventName of ['cta_clicked', 'form_submitted', 'popup_blocked', 'consent_updated']) {
+  for (const eventName of ['cta_clicked', 'consent_updated']) {
     assert.match(script, new RegExp(`["']${eventName}["']`));
   }
 });
@@ -754,107 +727,14 @@ test('keeps consent controls usable when browser storage is unavailable', async 
   assert.equal(harness.elements.banner.hidden, true);
 });
 
-test('marks form errors and focuses the first invalid field', async () => {
+test('site behavior leaves email submission to the dedicated client', async () => {
   const harness = makeRuntimeHarness();
-  await runSiteScript(harness);
-
-  const emptySubmit = harness.elements.form.dispatch('submit');
-  assert.equal(emptySubmit.defaultPrevented, true);
-  assert.equal(harness.context.document.activeElement, harness.elements.fields.nome);
-  for (const name of ['nome', 'telefone', 'assunto', 'mensagem']) {
-    assert.equal(harness.elements.fields[name].getAttribute('aria-invalid'), 'true');
-    assert.ok(harness.elements.errors[name].textContent.trim(), `${name} must have an accessible error`);
-  }
-
-  Object.assign(harness.elements.fields.nome, { value: 'Ana' });
-  Object.assign(harness.elements.fields.telefone, { value: '31 9999-999' });
-  Object.assign(harness.elements.fields.email, { value: 'email-inválido' });
-  Object.assign(harness.elements.fields.assunto, { value: 'Limpeza de fachada' });
-  Object.assign(harness.elements.fields.mensagem, { value: 'Quero agendar uma vistoria.' });
-  harness.elements.form.dispatch('submit');
-
-  assert.equal(harness.context.document.activeElement, harness.elements.fields.telefone);
-  assert.equal(harness.elements.fields.telefone.getAttribute('aria-invalid'), 'true');
-  assert.equal(harness.elements.fields.email.getAttribute('aria-invalid'), 'true');
-  assert.match(harness.elements.errors.telefone.textContent, /10/);
-});
-
-function fillValidForm(fields) {
-  fields.nome.value = 'Ana Souza';
-  fields.telefone.value = '(31) 99999-0000';
-  fields.email.value = 'ana@example.com';
-  fields.assunto.value = 'Limpeza de fachada';
-  fields.mensagem.value = 'Quero agendar uma vistoria.';
-}
-
-test('opens a valid WhatsApp form safely and tracks only non-PII metadata', async () => {
-  const harness = makeRuntimeHarness();
-  fillValidForm(harness.elements.fields);
   await runSiteScript(harness);
   harness.window.dataLayer.length = 0;
-
-  harness.elements.form.dispatch('submit');
-
-  assert.deepEqual(harness.openCalls, [['', '_blank']]);
-  assert.equal(harness.popup.opener, null);
-  const destination = new URL(harness.popup.location.href);
-  assert.equal(destination.origin + destination.pathname, 'https://api.whatsapp.com/send');
-  assert.equal(destination.searchParams.get('phone'), '5531996848477');
-  const message = destination.searchParams.get('text');
-  for (const value of ['Ana Souza', '(31) 99999-0000', 'ana@example.com', 'Limpeza de fachada', 'Quero agendar uma vistoria.']) {
-    assert.match(message, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  }
-  assert.equal(harness.window.dataLayer.length, 1);
-  assert.deepEqual(plain(harness.window.dataLayer[0]), {
-    event: 'form_submitted',
-    contact_method: 'whatsapp',
-    form_name: 'limpeza_orcamento',
-  });
-  assert.doesNotMatch(JSON.stringify(harness.window.dataLayer), /Ana|99999|example\.com|vistoria/i);
-});
-
-test('accepts a blank optional email and still opens the approved WhatsApp destination', async () => {
-  const harness = makeRuntimeHarness();
-  fillValidForm(harness.elements.fields);
-  harness.elements.fields.email.value = '';
-  await runSiteScript(harness);
-
-  harness.elements.form.dispatch('submit');
-
-  assert.deepEqual(harness.openCalls, [['', '_blank']]);
-  assert.equal(harness.popup.opener, null);
-  const destination = new URL(harness.popup.location.href);
-  assert.equal(destination.searchParams.get('phone'), '5531996848477');
-  assert.match(destination.searchParams.get('text'), /E-mail: Não informado/);
-  assert.equal(harness.elements.fields.email.getAttribute('aria-invalid'), null);
-});
-
-test('provides an accessible recovery link and event when the popup is blocked', async () => {
-  const harness = makeRuntimeHarness({ popupAllowed: false });
-  fillValidForm(harness.elements.fields);
-  await runSiteScript(harness);
-  harness.window.dataLayer.length = 0;
-
-  harness.elements.form.dispatch('submit');
-
-  const recoveryLink = harness.elements.status.querySelector('a');
-  assert.ok(recoveryLink, 'Blocked popups must expose a real recovery link');
-  assert.equal(recoveryLink.getAttribute('data-form-recovery'), '');
-  assert.match(recoveryLink.href, /^https:\/\/api\.whatsapp\.com\/send\?phone=5531996848477&text=/);
-  assert.match(harness.elements.status.textContent, /n[aã]o abriu|bloquead/i);
-  assert.deepEqual(plain(harness.window.dataLayer), [
-    {
-      event: 'form_submitted',
-      contact_method: 'whatsapp',
-      form_name: 'limpeza_orcamento',
-    },
-    {
-      event: 'popup_blocked',
-      block_reason: 'browser',
-      contact_method: 'whatsapp',
-      form_name: 'limpeza_orcamento',
-    },
-  ]);
+  const event = harness.elements.form.dispatch('submit');
+  assert.equal(event.defaultPrevented, false);
+  assert.equal(harness.openCalls.length, 0);
+  assert.equal(harness.window.dataLayer.length, 0);
 });
 
 test('tracks CTA context and toggles the compact header through an observer', async () => {
@@ -889,7 +769,5 @@ test('declares exactly one literal tracking call for each approved custom event'
   assert.deepEqual(literalEventNames, [
     'consent_updated',
     'cta_clicked',
-    'form_submitted',
-    'popup_blocked',
   ]);
 });

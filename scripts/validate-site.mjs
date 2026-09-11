@@ -148,8 +148,6 @@ export async function validateSite(root = defaultRoot) {
   assert.doesNotMatch(outsideFooter, /\(31\)\s*98712-2106/, 'Secondary display phone is restricted to footer');
   assert.ok(widget, 'Floating WhatsApp link must use data-whatsapp-widget');
   assert.match(widget.replaceAll('&amp;', '&'), new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(script, /const\s+WHATSAPP_NUMBER\s*=\s*["']5531996848477["']/, 'Form must use the commercial number constant');
-  assert.match(script, /api\.whatsapp\.com\/send\?phone=\$\{WHATSAPP_NUMBER\}&text=\$\{encodeURIComponent\(/, 'Form must route to the commercial WhatsApp number');
 
   const trackingIds = [...new Set(combined.match(/(?:GTM|G|AW)-[A-Z0-9-]+/g) ?? [])];
   assert.deepEqual(trackingIds, ['GTM-M7GS29F'], 'Tracking must contain only GTM-M7GS29F');
@@ -170,7 +168,8 @@ export async function validateSite(root = defaultRoot) {
   assert.match(canonicalTags[0], new RegExp(`\\bhref=["']${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), 'Canonical href must be exact');
   assert.equal(ogUrlTags.length, 1, 'HTML must contain one og:url');
   assert.match(ogUrlTags[0], new RegExp(`\\bcontent=["']${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), 'og:url must be exact');
-  assert.match(html, /<form\b[^>]*data-whatsapp-form[^>]*novalidate/, 'WhatsApp form contract is missing');
+  assert.match(html, /<form\b[^>]*data-contact-form[^>]*novalidate/, 'Email form contract is missing');
+  for (const value of ['contact-config.js', 'contact-form.js', 'data-form-name="limpeza_orcamento"']) assert.ok(html.includes(value), `Missing contact integration: ${value}`);
   assert.match(html, /(?:role=["']status["']|aria-live=["'](?:polite|assertive)["'])/, 'Form status must be announced');
 
   assert.match(html, /gtag\(\s*['"]consent['"]\s*,\s*['"]default['"]/, 'Consent default is missing');
@@ -205,10 +204,6 @@ export async function validateSite(root = defaultRoot) {
   assert.match(script, /consentDeny\??\.addEventListener\(\s*['"]click['"][\s\S]{0,300}?['"]denied['"]/, 'Deny handler must persist denied');
   assert.match(script, /consentManage\??\.addEventListener\(\s*['"]click['"][\s\S]{0,300}?showConsentBanner/, 'Manage handler must reopen consent');
 
-  assert.match(script, /window\.open\(\s*['"]['"]\s*,\s*['"]_blank['"]\s*\)/, 'Popup must be synchronously detectable');
-  assert.match(script, /popup\.opener\s*=\s*null/, 'Popup opener must be cleared');
-  assert.match(script, /popup\.location\.href\s*=\s*url/, 'Popup must navigate after opener is cleared');
-  assert.match(script, /popup_blocked/, 'Blocked popup event is missing');
 
   assert.match(styles, /:focus-visible/, 'Visible focus styles are missing');
   assert.match(styles, /outline\s*:\s*3px\s+solid\s+#fff(?:fff)?/i, 'Field focus outline must be white and 3px');
@@ -220,8 +215,8 @@ export async function validateSite(root = defaultRoot) {
   const trackingHelper = extractFunctionBody(script, 'trackEvent');
   const allowedDeclaration = script.match(/const\s+TRACKING_METADATA_KEYS\s*=\s*new\s+Set\(\s*\[([\s\S]*?)\]\s*\)/)?.[1] ?? '';
   const declaredKeys = [...allowedDeclaration.matchAll(/["']([a-z_]+)["']/g)].map((match) => match[1]);
-  const allowedKeys = ['block_reason', 'consent_choice', 'contact_method', 'cta_location', 'cta_text', 'form_name'];
-  assert.ok(eventCalls.length >= 4, 'Expected CTA, form, popup, and consent events');
+  const allowedKeys = ['consent_choice', 'contact_method', 'cta_location', 'cta_text'];
+  assert.equal(eventCalls.length, 2, 'Expected CTA and consent events; email conversion is handled separately');
   assert.deepEqual([...declaredKeys].sort(), allowedKeys, 'Tracking metadata whitelist must be exact');
   assert.match(trackingHelper, /Object\.entries\(metadata\)/, 'Tracking helper must inspect metadata entries');
   assert.match(trackingHelper, /TRACKING_METADATA_KEYS\.has\(key\)/, 'Tracking helper must enforce its whitelist');

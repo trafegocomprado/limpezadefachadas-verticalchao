@@ -36,7 +36,16 @@ O Consent Mode v2 começa negado e pode ser revisto pelo visitante. Os eventos p
 
 - `index.html`: conteúdo, SEO, JSON-LD e bootstrap do GTM
 - `styles.css`: sistema visual institucional e responsividade
-- `script.js`: formulário, consentimento e eventos
+- `script.js`: consentimento e eventos dos botões independentes
+- `contact-form.js` e `contact-config.js`: envio do formulário por e-mail
 - `assets/`: imagens, ícones e fontes locais
 - `docs/quality/`: relatórios de copy e QA
 - `public/`: pacote de produção para o Cloudflare Pages
+
+## Formulário por e-mail
+
+O formulário usa `contact-form.js` e `contact-config.js` para enviar os dados ao Worker Cloudflare. O e-mail é obrigatório para resposta; o telefone é opcional. O formulário exige validação Turnstile e só confirma o envio depois de uma resposta `{ ok: true, requestId }`. Os botões de WhatsApp continuam independentes.
+
+`contact-config.js` já contém o endpoint `https://verticalchao-contato.mpxedl.workers.dev/api/contato` e a sitekey de produção do Turnstile. A entrega real a `verticalchao@gmail.com` ainda depende da validação final de publicação. Se a configuração estiver ausente, o cliente mantém o envio desativado e oferece o e-mail como alternativa. Sem JavaScript, o botão continua desativado e há uma alternativa de contato por e-mail.
+
+`npm run check` inclui testes de integração e testes do cliente de envio com respostas simuladas; esses testes não enviam pedidos reais.

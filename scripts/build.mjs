@@ -10,6 +10,8 @@ const deployFiles = [
   'index.html',
   'styles.css',
   'script.js',
+  'contact-config.js',
+  'contact-form.js',
   'robots.txt',
   'sitemap.xml',
   '_headers',
