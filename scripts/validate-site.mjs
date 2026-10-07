@@ -116,7 +116,7 @@ export async function validateSite(root = defaultRoot) {
   const metadata = JSON.parse(metadataSource);
   const combined = `${html}\n${styles}\n${script}\n${metadataSource}`;
 
-  for (const required of ['GTM-M7GS29F', '5531996848477', '5531987122106']) {
+  for (const required of ['GTM-M7GS29F', '5531933011440', '5531987122106']) {
     assert.match(combined, new RegExp(required), `Missing required value: ${required}`);
   }
   for (const forbidden of ['5531994711393', '99471-1393', 'Edvaldo', 'menu-toggle', 'data-menu-toggle', 'hamburger']) {
@@ -124,7 +124,7 @@ export async function validateSite(root = defaultRoot) {
   }
   assertRemovedPhoneAbsent(combined);
 
-  const approvedWhatsApp = 'https://api.whatsapp.com/send?phone=5531996848477&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!';
+  const approvedWhatsApp = 'https://api.whatsapp.com/send?phone=5531933011440&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!';
   const normalizedHtml = html.replaceAll('&amp;', '&');
   const footer = html.match(/<footer\b[\s\S]*?<\/footer>/i)?.[0] ?? '';
   const header = html.match(/<header\b[\s\S]*?<\/header>/i)?.[0] ?? '';
@@ -133,14 +133,14 @@ export async function validateSite(root = defaultRoot) {
   const whatsappHrefs = (html.match(/<a\b[^>]*>/gi) ?? [])
     .map((tag) => extractAttribute(tag, 'href').replaceAll('&amp;', '&'))
     .filter((href) => /^https:\/\/api\.whatsapp\.com\/send(?:\?|$)/i.test(href));
-  assert.match(html, /href=["']tel:\+5531996848477["']/, 'Exact commercial tel link is missing');
+  assert.match(html, /href=["']tel:\+5531933011440["']/, 'Exact commercial tel link is missing');
   assert.match(normalizedHtml, new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Approved WhatsApp URL is missing');
   assert.ok(header, 'A header element is required');
-  assert.match(header, /href=["']tel:\+5531996848477["']/, 'Header must contain the exact commercial tel link');
+  assert.match(header, /href=["']tel:\+5531933011440["']/, 'Header must contain the exact commercial tel link');
   assert.match(header.replaceAll('&amp;', '&'), new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'Header must contain the approved WhatsApp URL');
   assert.ok(whatsappHrefs.length > 0, 'At least one api.whatsapp.com/send link is required');
   for (const href of whatsappHrefs) {
-    assert.equal(new URL(href).searchParams.get('phone'), '5531996848477', `Unexpected WhatsApp phone in ${href}`);
+    assert.equal(new URL(href).searchParams.get('phone'), '5531933011440', `Unexpected WhatsApp phone in ${href}`);
   }
   assert.ok(footer, 'A footer element is required');
   assert.match(footer, /href=["']tel:\+5531987122106["']/, 'Secondary tel link must be in footer');
@@ -233,7 +233,7 @@ export async function validateSite(root = defaultRoot) {
   assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));
   assert.deepEqual(metadata.tracking, { gtm: 'GTM-M7GS29F' });
   assert.equal(metadata.mobile_menu, false);
-  assert.equal(metadata.contacts?.commercial, '+5531996848477');
+  assert.equal(metadata.contacts?.commercial, '+5531933011440');
   assert.equal(metadata.contacts?.footer_secondary, '+5531987122106');
 
   return { trackingIds, figureCount: 3, canonical };

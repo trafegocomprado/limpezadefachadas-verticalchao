@@ -22,7 +22,7 @@ test('contact form sends email with required reply address and never defaults to
   assert.match(form, /<noscript>[\s\S]*mailto:verticalchao@gmail\.com/);
   assert.match(form, /data-contact-fallback/);
   assert.doesNotMatch(form, /data-whatsapp-form|Enviar[^<]*WhatsApp|data-track-cta/);
-  assert.match(html, /https:\/\/api\.whatsapp\.com\/send\?phone=5531996848477/);
+  assert.match(html, /https:\/\/api\.whatsapp\.com\/send\?phone=5531933011440/);
 });
 
 test('email scripts load once in order and are included in each static build', async () => {

@@ -460,18 +460,18 @@ test('declares the approved contacts and removes retired contacts everywhere', a
     readRequired('build.json'),
   ]);
   const combined = files.join('\n');
-  const required = ['5531996848477', '5531987122106'];
+  const required = ['5531933011440', '5531987122106'];
   const forbidden = ['5531994711393', '99471-1393', 'Edvaldo'];
 
   for (const value of required) assert.match(combined, new RegExp(value));
   for (const value of forbidden) assert.doesNotMatch(combined, new RegExp(value, 'i'));
   assertRemovedPhoneAbsent(combined);
-  assert.match(files[0], /\(31\)\s*99684-8477/);
+  assert.match(files[0], /\(31\)\s*93301-1440/);
   assert.match(files[0], /\(31\)\s*98712-2106/);
 
   const html = files[0];
   const normalizedHtml = html.replaceAll('&amp;', '&');
-  const approvedWhatsApp = 'https://api.whatsapp.com/send?phone=5531996848477&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!';
+  const approvedWhatsApp = 'https://api.whatsapp.com/send?phone=5531933011440&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!';
   const footer = html.match(/<footer\b[\s\S]*?<\/footer>/i)?.[0] ?? '';
   const header = html.match(/<header\b[\s\S]*?<\/header>/i)?.[0] ?? '';
   const outsideFooter = html.replace(footer, '');
@@ -480,14 +480,14 @@ test('declares the approved contacts and removes retired contacts everywhere', a
     .map((tag) => extractAttribute(tag, 'href').replaceAll('&amp;', '&'))
     .filter((href) => /^https:\/\/api\.whatsapp\.com\/send(?:\?|$)/i.test(href));
 
-  assert.match(html, /href=["']tel:\+5531996848477["']/);
+  assert.match(html, /href=["']tel:\+5531933011440["']/);
   assert.match(normalizedHtml, new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.ok(header, 'A header element is required');
-  assert.match(header, /href=["']tel:\+5531996848477["']/);
+  assert.match(header, /href=["']tel:\+5531933011440["']/);
   assert.match(header.replaceAll('&amp;', '&'), new RegExp(approvedWhatsApp.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.ok(whatsappHrefs.length > 0, 'At least one api.whatsapp.com/send link is required');
   for (const href of whatsappHrefs) {
-    assert.equal(new URL(href).searchParams.get('phone'), '5531996848477', `Unexpected WhatsApp phone in ${href}`);
+    assert.equal(new URL(href).searchParams.get('phone'), '5531933011440', `Unexpected WhatsApp phone in ${href}`);
   }
   assert.ok(footer, 'A footer element is required');
   assert.match(footer, /href=["']tel:\+5531987122106["']/);
@@ -624,7 +624,7 @@ test('declares exact build metadata for contacts and tracking', async () => {
 
   assert.deepEqual(metadata.tracking, { gtm: 'GTM-M7GS29F' });
   assert.equal(metadata.mobile_menu, false);
-  assert.equal(metadata.contacts.commercial, '+5531996848477');
+  assert.equal(metadata.contacts.commercial, '+5531933011440');
   assert.equal(metadata.contacts.footer_secondary, '+5531987122106');
 });
 

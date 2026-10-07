@@ -25,9 +25,9 @@ O domínio inicial e canonical são `https://limpezadefachadas-verticalchao.page
 
 ## Contatos e tracking
 
-- Comercial: `(31) 99684-8477`
-- Telefone secundário do rodapé: `(31) 98712-2106`
-- WhatsApp comercial: `https://api.whatsapp.com/send?phone=5531996848477&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!`
+- Comercial: `(31) 93301-1440`
+- Engenharia Ademar (rodapé): `(31) 98712-2106`
+- WhatsApp comercial: `https://api.whatsapp.com/send?phone=5531933011440&text=Ol%C3%A1,%20preciso%20de%20um%20atendimento!`
 - Google Tag Manager: `GTM-M7GS29F`
 
 O Consent Mode v2 começa negado e pode ser revisto pelo visitante. Os eventos próprios enviam somente metadados de interface, sem nome, telefone, e-mail, assunto ou mensagem.
