@@ -510,9 +510,9 @@ test('uses exactly the original GTM container and no direct analytics IDs', asyn
   assert.equal(countMatches(html, /(?:window\.)?dataLayer\.push\(/g), 1, 'HTML may only contain the Consent/GTM bootstrap push');
 });
 
-test('has one H1 and canonical metadata for the Pages deployment', async () => {
+test('has one H1 and canonical metadata for the custom domain', async () => {
   const html = await readRequired('index.html');
-  const canonical = 'https://limpezadefachadas-verticalchao.pages.dev/';
+  const canonical = 'https://limpezafachadas.verticalchao.com.br/';
   const canonicalTags = extractTagWithAttribute(html, 'link', 'rel', 'canonical');
   const ogUrlTags = extractTagWithAttribute(html, 'meta', 'property', 'og:url');
 
@@ -613,7 +613,7 @@ test('provides visible AA focus treatment and reduced-motion support', async () 
 test('publishes a sitemap that matches the canonical URL', async () => {
   const robots = await readRequired('robots.txt');
   const sitemap = await readRequired('sitemap.xml');
-  const canonical = 'https://limpezadefachadas-verticalchao.pages.dev/';
+  const canonical = 'https://limpezafachadas.verticalchao.com.br/';
 
   assert.match(robots, new RegExp(`Sitemap:\\s*${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}sitemap\\.xml`));
   assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));

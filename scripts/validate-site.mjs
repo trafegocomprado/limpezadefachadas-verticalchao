@@ -161,7 +161,7 @@ export async function validateSite(root = defaultRoot) {
 
   assert.equal(countMatches(html, /<h1\b/gi), 1, 'HTML must contain exactly one H1');
   assert.equal(countMatches(html, /<figure\b/gi), 3, 'Gallery must contain exactly three figures');
-  const canonical = 'https://limpezadefachadas-verticalchao.pages.dev/';
+  const canonical = 'https://limpezafachadas.verticalchao.com.br/';
   const canonicalTags = extractTagWithAttribute(html, 'link', 'rel', 'canonical');
   const ogUrlTags = extractTagWithAttribute(html, 'meta', 'property', 'og:url');
   assert.equal(canonicalTags.length, 1, 'HTML must contain one canonical link');
@@ -229,7 +229,7 @@ export async function validateSite(root = defaultRoot) {
     for (const key of metadataKeys) assert.ok(allowedKeys.includes(key), `Forbidden tracking metadata key: ${key}`);
   }
 
-  assert.match(robots, /Sitemap:\s*https:\/\/limpezadefachadas-verticalchao\.pages\.dev\/sitemap\.xml/);
+  assert.match(robots, /Sitemap:\s*https:\/\/limpezafachadas\.verticalchao\.com\.br\/sitemap\.xml/);
   assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));
   assert.deepEqual(metadata.tracking, { gtm: 'GTM-M7GS29F' });
   assert.equal(metadata.mobile_menu, false);

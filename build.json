@@ -1,6 +1,6 @@
 {
   "project": "limpezadefachadas-verticalchao",
-  "canonical": "https://limpezadefachadas-verticalchao.pages.dev/",
+  "canonical": "https://limpezafachadas.verticalchao.com.br/",
   "source": "https://limpezadefachadas.verticalchao.com.br/",
   "references": {
     "content_assets_and_tracking": "https://limpezadefachadas.verticalchao.com.br/",
@@ -109,14 +109,12 @@
     "public_dir": "public",
     "ready_for_github": true,
     "github_url": "https://github.com/trafegocomprado/limpezadefachadas-verticalchao",
-    "production_url": "https://limpezadefachadas-verticalchao.pages.dev/",
+    "production_url": "https://limpezafachadas.verticalchao.com.br/",
     "git_integration": true,
     "source_type": "github",
     "deployed": true
   },
-  "warnings": [
-    "Atualize canonical, og:url, robots.txt e sitemap.xml quando o domínio personalizado for definido."
-  ],
+  "warnings": [],
   "generated_at": "2026-07-23",
   "contact_form": {
     "method": "POST",
