@@ -180,7 +180,7 @@ export async function validateSite(root = defaultRoot) {
   for (const hook of ['data-consent-banner', 'data-consent-accept', 'data-consent-deny', 'data-consent-manage']) {
     assert.match(html, new RegExp(hook), `Missing consent hook: ${hook}`);
   }
-  assert.match(script, /verticalchao_consent/, 'Consent preference key is missing');
+  assert.match(script, /verticalchao_consent_v2/, 'Consent preference key is missing');
   assert.match(script, /gtag\(\s*['"]consent['"]\s*,\s*['"]update['"]/, 'Consent update is missing');
   assert.match(script, /try\s*{[\s\S]*localStorage[\s\S]*}\s*catch\s*\(/, 'localStorage must be guarded');
   // Static guarantees here are complemented by the Task 7 browser/runtime behavior suite.

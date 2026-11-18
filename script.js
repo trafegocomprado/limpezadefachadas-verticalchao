@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const CONSENT_STORAGE_KEY = "verticalchao_consent";
+  const CONSENT_STORAGE_KEY = "verticalchao_consent_v2";
   const TRACKING_METADATA_KEYS = new Set([
     "consent_choice",
     "contact_method",

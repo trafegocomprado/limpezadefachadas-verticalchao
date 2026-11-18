@@ -120,7 +120,11 @@
       form.setAttribute('aria-busy', 'true');
       showStatus('Enviando sua mensagem...', 'pending');
       const page = new URL(window.location.href);
+      const address = form.elements.namedItem('endereco')?.value?.trim() || '';
       const body = { ...values, turnstileToken: token, pageUrl: page.origin + page.pathname };
+      if (address) body.endereco = address;
+      const tracking = window.verticalChaoAttribution?.();
+      if (tracking) body.tracking = tracking;
       token = '';
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);

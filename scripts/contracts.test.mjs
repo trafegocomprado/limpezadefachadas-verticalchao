@@ -291,7 +291,7 @@ function makeRuntimeHarness({ storedConsent = null, popupAllowed = true, storage
   };
 
   const storage = new Map();
-  if (storedConsent !== null) storage.set('verticalchao_consent', storedConsent);
+  if (storedConsent !== null) storage.set('verticalchao_consent_v2', storedConsent);
   const localStorage = {
     getItem(key) {
       if (storageThrows) throw new Error('storage unavailable');
@@ -551,7 +551,7 @@ test('provides revisable Consent Mode v2 with denied defaults', async () => {
   for (const hook of ['data-consent-banner', 'data-consent-accept', 'data-consent-deny', 'data-consent-manage']) {
     assert.match(html, new RegExp(hook));
   }
-  assert.match(script, /verticalchao_consent/);
+  assert.match(script, /verticalchao_consent_v2/);
   assert.match(script, /gtag\(\s*['"]consent['"]\s*,\s*['"]update['"]/);
   assert.match(script, /try\s*{[\s\S]*localStorage[\s\S]*}\s*catch\s*\(/);
 
@@ -642,7 +642,7 @@ test('persists accepted consent and sends the exact four granted signals', async
   await runSiteScript(harness);
   harness.elements.accept.dispatch('click');
 
-  assert.equal(harness.storage.get('verticalchao_consent'), 'granted');
+  assert.equal(harness.storage.get('verticalchao_consent_v2'), 'granted');
   assert.equal(harness.elements.banner.hidden, true);
   assert.deepEqual(
     JSON.parse(JSON.stringify(harness.gtagCalls.at(-1))),
@@ -675,7 +675,7 @@ test('manage consent focuses the dialog and denying restores focus to the manage
   assert.equal(harness.context.document.activeElement, harness.elements.accept);
 
   harness.elements.deny.dispatch('click');
-  assert.equal(harness.storage.get('verticalchao_consent'), 'denied');
+  assert.equal(harness.storage.get('verticalchao_consent_v2'), 'denied');
   assert.equal(harness.elements.banner.hidden, true);
   assert.equal(harness.context.document.activeElement, harness.elements.manage);
   assert.deepEqual(

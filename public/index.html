@@ -354,6 +354,11 @@
               <span class="form-field__error" id="mensagem-error" data-error-for="mensagem"></span>
             </div>
             <div class="contact-honeypot" aria-hidden="true"><label for="website">Deixe este campo em branco</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <div class="form-field form-field--wide">
+              <label for="endereco">Endereço da obra <span>(opcional)</span></label>
+              <input id="endereco" name="endereco" type="text" maxlength="240" autocomplete="off">
+            </div>
+            <p class="form-field--wide"><small>Usamos os dados para responder ao pedido de orçamento. <button style="font:inherit;color:inherit;text-decoration:underline;background:none;border:0;padding:0;cursor:pointer" type="button" data-tracking-preferences>Preferências de medição</button></small></p>
             <div class="contact-security" data-turnstile aria-label="Verificação de segurança"></div>
             <button class="button button--primary form-field--wide" type="submit" disabled>Enviar pedido por e-mail</button>
             <p class="form-status form-field--wide" data-form-status role="status" aria-live="polite"></p>
@@ -439,7 +444,7 @@
     <aside class="consent-banner" data-consent-banner aria-labelledby="consent-title" hidden>
       <div>
         <h2 id="consent-title">Preferências de cookies</h2>
-        <p>Usamos dados de medição para entender o uso da página. Você pode aceitar, recusar ou rever sua escolha depois.</p>
+        <p>Usamos dados de medição para entender o uso da página. Você pode aceitar, recusar ou rever sua escolha depois. Se você permitir, a Vertical Chão também poderá associar a origem da visita e os cliques ao seu pedido de orçamento para medir os anúncios. O formulário funciona com qualquer escolha.</p>
       </div>
       <div class="consent-banner__actions">
         <button class="button button--secondary" type="button" data-consent-deny>Recusar</button>
@@ -449,6 +454,7 @@
 
     <script src="script.js" defer></script>
     <script src="contact-config.js" defer></script>
+    <script src="https://tracking.verticalchao.com.br/tracker.js" defer></script>
     <script src="contact-form.js" defer></script>
   </body>
 </html>
